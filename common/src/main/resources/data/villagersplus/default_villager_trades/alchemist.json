@@ -167,6 +167,19 @@
         "villager_experience": 4
       },
       {
+        "type": "villagersplus:sell_item",
+        "sell": {
+          "item": "gunpowder",
+          "count": 1
+        },
+        "priceIn": {
+          "item": "emerald",
+          "count": 3
+        },
+        "max_uses": 12,
+        "villager_experience": 4
+      },
+      {
         "type": "villagersplus:buy_item",
         "buy": {
           "item": "blaze_rod",
