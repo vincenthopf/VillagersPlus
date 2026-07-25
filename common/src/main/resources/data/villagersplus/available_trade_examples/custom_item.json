@@ -1,0 +1,42 @@
+{
+  "_comment": "Any item stack in any trade type accepts NBT/component sugar: name, lore, enchantments, color (dyeable), potion, skull_owner, book, and a raw 'nbt' SNBT escape hatch applied last. No special trade type is needed.",
+  "profession": "villagersplus:occultist",
+  "trades": {
+    "master": [
+      {
+        "type": "villagersplus:sell_item",
+        "sell": {
+          "item": "minecraft:diamond_sword",
+          "name": "{\"text\":\"Excalibur\",\"color\":\"gold\",\"italic\":false}",
+          "lore": [ "A blade of legend", "Forged by the occultist" ],
+          "enchantments": [ { "id": "minecraft:sharpness", "lvl": 5 } ],
+          "nbt": "{Unbreakable:1b}"
+        },
+        "priceIn": { "item": "minecraft:emerald", "count": 40 },
+        "max_uses": 2,
+        "villager_experience": 30
+      },
+      {
+        "type": "villagersplus:sell_item",
+        "sell": {
+          "item": "minecraft:leather_chestplate",
+          "name": "Dyed Tunic",
+          "color": "#7B3F00"
+        },
+        "priceIn": { "item": "minecraft:emerald", "count": 6 }
+      },
+      {
+        "type": "villagersplus:sell_item",
+        "sell": {
+          "item": "minecraft:written_book",
+          "book": {
+            "title": "Occult Notes",
+            "author": "The Occultist",
+            "pages": [ "Page one of secrets.", "Page two of secrets." ]
+          }
+        },
+        "priceIn": { "item": "minecraft:emerald", "count": 12 }
+      }
+    ]
+  }
+}

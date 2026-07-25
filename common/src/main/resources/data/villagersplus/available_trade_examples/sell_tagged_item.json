@@ -1,0 +1,15 @@
+{
+  "profession": "villagersplus:horticulturist",
+  "trades": {
+    "apprentice": [
+      {
+        "_comment": "Sells one random member of the tag per generated offer.",
+        "type": "villagersplus:sell_tagged_item",
+        "sell": { "tag": "minecraft:saplings", "count": 1 },
+        "priceIn": { "item": "minecraft:emerald", "count": 3 },
+        "max_uses": 12,
+        "villager_experience": 5
+      }
+    ]
+  }
+}

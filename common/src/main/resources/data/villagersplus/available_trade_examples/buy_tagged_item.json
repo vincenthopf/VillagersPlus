@@ -1,0 +1,15 @@
+{
+  "profession": "villagersplus:horticulturist",
+  "trades": {
+    "novice": [
+      {
+        "_comment": "Buys ANY one member of the tag. Vanilla matches a concrete item, so one random tag member is chosen per generated offer (not an 'any-of' match).",
+        "type": "villagersplus:buy_tagged_item",
+        "buy": { "tag": "minecraft:flowers", "count": 8 },
+        "reward": { "item": "minecraft:emerald", "count": 1 },
+        "max_uses": 16,
+        "villager_experience": 2
+      }
+    ]
+  }
+}

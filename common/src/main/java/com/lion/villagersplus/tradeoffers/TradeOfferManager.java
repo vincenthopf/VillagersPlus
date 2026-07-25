@@ -2,11 +2,13 @@ package com.lion.villagersplus.tradeoffers;
 
 import com.lion.villagersplus.VillagersPlus;
 import com.google.gson.*;
+import com.lion.villagersplus.tradeoffers.conditions.TradeConditions;
 import com.lion.villagersplus.tradeoffers.trades.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.village.TradeOffers;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,11 @@ public class TradeOfferManager {
         tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_enchanted_book"), new JsonSellEnchantedBookTradeOffer());
         tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_specific_enchanted_book"), new JsonSellSpecificEnchantedBookTradeOffer());
         tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_map"), new JsonSellStructureMapTradeOffer());
+        tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"weighted_pool"), new JsonWeightedPoolTradeOffer());
+        tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"buy_tagged_item"), new JsonBuyTaggedItemTradeOffer());
+        tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_tagged_item"), new JsonSellTaggedItemTradeOffer());
+        tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_enchanted_book_from_list"), new JsonSellEnchantedBookFromListTradeOffer());
+        tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"multi_input"), new JsonMultiInputTradeOffer());
     }
 
     public static void deserializeJson(JsonObject jsonRoot) {
@@ -55,19 +62,47 @@ public class TradeOfferManager {
 
             for (JsonElement tradeElement : tradesArray) {
                 JsonObject trade = tradeElement.getAsJsonObject();
-                JsonTradeOffer adapter = tradeOfferRegistry.get(Identifier.tryParse(trade.get("type").getAsString()));
+                TradeOffers.Factory factory = deserializeTrade(trade);
 
-                if (adapter == null) {
+                if (factory == null) {
                     VillagersPlus.LOGGER.error("Trade type: " + trade.get("type").getAsString() + " is broken.");
                     VillagersPlus.LOGGER.error("Error in deserializing trades." +
                             "Trade element: " + tradeElement + " and " +
                             "Trade: " + trade + " in " + tradesArray + " is broken. \n" +
                             "Sending faulty JSON: " + jsonRoot);
                 } else {
-                    tradeConsumer.accept(level, adapter.deserialize(trade));
+                    tradeConsumer.accept(level, factory);
                 }
 
             }
         }
+    }
+
+    /**
+     * Central choke-point every trade flows through — both top-level trades and nested ones
+     * (e.g. inside {@code weighted_pool}). Deserializes the adapter, then layers the cross-cutting
+     * {@code conditions} block and global pricing on top so those features apply to every type
+     * without editing individual adapters. Returns {@code null} when the trade type is unknown.
+     */
+    @Nullable
+    public static TradeOffers.Factory deserializeTrade(JsonObject trade) {
+        JsonTradeOffer adapter = tradeOfferRegistry.get(Identifier.tryParse(trade.get("type").getAsString()));
+        if (adapter == null) {
+            return null;
+        }
+
+        TradeOffers.Factory factory = adapter.deserialize(trade);
+
+        if (VillagersPlus.CONFIG.enable_conditional_trades && trade.has("conditions")) {
+            boolean orLogic = "or".equalsIgnoreCase(readString(trade, "logic"));
+            factory = new ConditionalTradeFactory(factory,
+                    TradeConditions.parse(trade.getAsJsonArray("conditions"), orLogic));
+        }
+
+        return PricingTradeFactory.wrapIfNeeded(factory, trade);
+    }
+
+    private static String readString(JsonObject object, String key) {
+        return object.has(key) ? object.get(key).getAsString() : "";
     }
 }

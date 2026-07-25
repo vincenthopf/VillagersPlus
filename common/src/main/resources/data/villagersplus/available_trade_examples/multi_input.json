@@ -1,0 +1,19 @@
+{
+  "profession": "minecraft:librarian",
+  "trades": {
+    "expert": [
+      {
+        "_comment": "Two inputs -> one output. Vanilla has exactly two buy slots, so one of the two inputs IS the currency.",
+        "type": "villagersplus:multi_input",
+        "input_a": { "item": "minecraft:emerald", "count": 5 },
+        "input_b": { "item": "minecraft:book", "count": 1 },
+        "sell": {
+          "item": "minecraft:enchanted_book",
+          "enchantments": [ { "id": "minecraft:mending", "lvl": 1 } ]
+        },
+        "max_uses": 6,
+        "villager_experience": 15
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "_comment": "Economy tuning. 'demand' seeds vanilla's demand-based pricing (rises with use, decays over time). Global scales live in the config: trade_price_multiplier_scale, trade_cost_scale, enable_time_of_day_pricing, time_of_day_price_variance. Reputation/Hero-of-the-Village discounts are applied by vanilla automatically.",
+  "profession": "villagersplus:miner",
+  "trades": {
+    "journeyman": [
+      {
+        "type": "villagersplus:sell_item",
+        "sell": { "item": "minecraft:diamond", "count": 1 },
+        "priceIn": { "item": "minecraft:emerald", "count": 12 },
+        "price_multiplier": 0.1,
+        "demand": 10,
+        "max_uses": 12,
+        "villager_experience": 10
+      }
+    ]
+  }
+}

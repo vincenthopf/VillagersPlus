@@ -1,19 +1,19 @@
 package com.lion.villagersplus.tradeoffers.trades;
 
 import com.google.gson.JsonObject;
-import net.minecraft.item.Item;
+import com.lion.villagersplus.VillagersPlus;
+import com.lion.villagersplus.tradeoffers.util.ItemStackSerializer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
+import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOffers;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 public abstract class JsonTradeOffer {
     protected int maxUses;
     protected int experience;
     protected float priceMultiplier;
+    protected int demand;
 
     @NotNull
     public abstract TradeOffers.Factory deserialize(JsonObject json);
@@ -21,7 +21,18 @@ public abstract class JsonTradeOffer {
     protected void loadDefaultStats(JsonObject jsonObject) {
         this.maxUses = readInt(jsonObject, "max_uses", 12);
         this.experience = readInt(jsonObject, "villager_experience", 5);
-        this.priceMultiplier = readFloat(jsonObject, "price_multiplier", 0.05f);
+        this.demand = readInt(jsonObject, "demand", 0);
+        // Global price-multiplier scale from config (1.0 keeps the JSON value unchanged).
+        float base = readFloat(jsonObject, "price_multiplier", 0.05f);
+        this.priceMultiplier = base * VillagersPlus.CONFIG.trade_price_multiplier_scale;
+    }
+
+    /**
+     * Builds a vanilla offer using the loaded stats, including the initial {@code demand}. Uses the
+     * 8-arg {@link TradeOffer} constructor so the demand field is honoured by vanilla price math.
+     */
+    protected TradeOffer buildOffer(ItemStack buy, ItemStack second, ItemStack sell) {
+        return new TradeOffer(buy, second, sell, 0, maxUses, experience, priceMultiplier, demand);
     }
 
     public static int readInt(JsonObject object, String key, int defaultValue) {
@@ -40,20 +51,11 @@ public abstract class JsonTradeOffer {
         return object.has(key) ? Identifier.tryParse(object.get(key).getAsString()) : new Identifier(defaultValue);
     }
 
-
     public static ItemStack getItemStackFromJson(JsonObject json) {
-        Optional<Item> item = Registries.ITEM.getOrEmpty(Identifier.tryParse(json.get("item").getAsString()));
-
-        if (item.isPresent()) {
-            int count = json.has("count") ? json.get("count").getAsInt() : 1;
-            return new ItemStack(item.get(), count);
-        } else {
-            return ItemStack.EMPTY;
-        }
+        return ItemStackSerializer.fromJson(json, true);
     }
 
     public static ItemStack getItemStackFromJsonWithoutCount(JsonObject json) {
-        Optional<Item> item = Registries.ITEM.getOrEmpty(Identifier.tryParse(json.get("item").getAsString()));
-        return item.map(value -> new ItemStack(value, 1)).orElse(ItemStack.EMPTY);
+        return ItemStackSerializer.fromJson(json, false);
     }
 }

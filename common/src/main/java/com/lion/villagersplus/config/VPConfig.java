@@ -24,6 +24,21 @@ public class VPConfig implements Config {
     @Description("Amount of trades the wandering trader can have at max. (Default: 5)")
     public int trade_offers_wandering_trader = 5;
 
+    @Description("Global multiplier applied to every trade's price_multiplier (the demand/reputation price slope). 1.0 keeps JSON values unchanged. (Default: 1.0)")
+    public float trade_price_multiplier_scale = 1.0F;
+
+    @Description("Global multiplier applied to the currency (first input) count of every trade. Result is clamped to 1..maxStackSize. 1.0 keeps costs unchanged. (Default: 1.0)")
+    public float trade_cost_scale = 1.0F;
+
+    @Description("Whether the optional \"conditions\" block on trades is evaluated. When false, conditional trades always appear. (Default: true)")
+    public boolean enable_conditional_trades = true;
+
+    @Description("Enable time-of-day price variance. Note: an offer's price is fixed when it is generated (on villager level-up), so this varies between offers, not live. (Default: false)")
+    public boolean enable_time_of_day_pricing = false;
+
+    @Description("Maximum fractional price swing for time-of-day pricing, e.g. 0.15 = +/-15%. (Default: 0.15)")
+    public float time_of_day_price_variance = 0.15F;
+
     @Description("Max amount of experience storable in the enchanted basin. (Default: 500)")
     public int max_exp_amount = 500;
 
