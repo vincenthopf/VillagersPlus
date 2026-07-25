@@ -24,6 +24,14 @@ public class VPItems {
 
     public static final Supplier<Item> OCCULTIST_TABLE_BLOCK = RegistryHelper.registerItem("occultist_table", () -> new BlockItem(VPBlocks.OCCULTIST_TABLE_BLOCK.get(), new Item.Settings()));
 
+    public static final Supplier<Item> ORE_GRINDER_BLOCK = RegistryHelper.registerItem("ore_grinder", () -> new BlockItem(VPBlocks.ORE_GRINDER_BLOCK.get(), new Item.Settings()));
+
+    // Aquarium fish-size items: fish food grows the aquarium's animal, diet food shrinks it.
+    public static final Supplier<Item> FISH_FOOD = RegistryHelper.registerItem("fish_food", () -> new Item(new Item.Settings()));
+    public static final Supplier<Item> DIET_FOOD = RegistryHelper.registerItem("diet_food", () -> new Item(new Item.Settings()));
+    // Calming food: toggles the aquarium animal between free swimming and hovering animated in the centre.
+    public static final Supplier<Item> CALM_FOOD = RegistryHelper.registerItem("calm_food", () -> new Item(new Item.Settings()));
+
 
     public static void init() {}
 
@@ -42,5 +50,9 @@ public class VPItems {
         RegistryHelper.addToItemGroup(VPItemGroups.ITEM_GROUP, OCEANOGRAPHER_TABLE_BLOCK.get());
         RegistryHelper.addToItemGroup(VPItemGroups.ITEM_GROUP, ALCHEMIST_TABLE_BLOCK.get());
         RegistryHelper.addToItemGroup(VPItemGroups.ITEM_GROUP, OCCULTIST_TABLE_BLOCK.get());
+        RegistryHelper.addToItemGroup(VPItemGroups.ITEM_GROUP, ORE_GRINDER_BLOCK.get());
+        RegistryHelper.addToItemGroup(VPItemGroups.ITEM_GROUP, FISH_FOOD.get());
+        RegistryHelper.addToItemGroup(VPItemGroups.ITEM_GROUP, DIET_FOOD.get());
+        RegistryHelper.addToItemGroup(VPItemGroups.ITEM_GROUP, CALM_FOOD.get());
     }
 }

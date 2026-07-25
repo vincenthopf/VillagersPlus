@@ -1,17 +1,25 @@
 {
+  "item.villagersplus.fish_food": "Fischfutter",
+  "item.villagersplus.diet_food": "Diätfutter",
+  "item.villagersplus.calm_food": "Ruhefutter",
+
   "entity.minecraft.villager.alchemist": "Alchemist",
+  "entity.minecraft.villager.miner": "Bergmann",
   "entity.minecraft.villager.horticulturist": "Gärtner",
   "entity.minecraft.villager.oceanographer": "Ozeanograf",
   "entity.minecraft.villager.occultist": "Okkultist",
 
   "entity.minecraft.villager.villagersplus.alchemist": "Alchemist",
+  "entity.minecraft.villager.villagersplus.miner": "Bergmann",
   "entity.minecraft.villager.villagersplus.horticulturist": "Gärtner",
   "entity.minecraft.villager.villagersplus.oceanographer": "Ozeanograf",
   "entity.minecraft.villager.villagersplus.occultist": "Okkultist",
 
   "container.alchemist_table": "Alchemistentisch",
+  "container.villagersplus.ore_grinder": "Erzmühle",
 
   "block.villagersplus.alchemist_table": "Alchemistentisch",
+  "block.villagersplus.ore_grinder": "Erzmühle",
   "block.villagersplus.oceanographer_table": "Aquarium",
   "block.villagersplus.occultist_table": "Verzaubertes Becken",
   "block.villagersplus.oak_horticulturist_table": "Eichenholz-Blumenkübel",

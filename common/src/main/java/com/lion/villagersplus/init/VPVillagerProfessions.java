@@ -26,6 +26,7 @@ public class VPVillagerProfessions {
     public static Supplier<VillagerProfession> OCCULTIST;
     public static Supplier<VillagerProfession> OCEANOGRAPHER;
     public static Supplier<VillagerProfession> ALCHEMIST;
+    public static Supplier<VillagerProfession> MINER;
 
     public static final Predicate<RegistryEntry<PointOfInterestType>> HORTICULTURIST_PREDICATE = (registryEntry) -> registryEntry.value() ==
             VPPointOfInterestTypes.HORTICULTURIST_ACACIA_POI.get()
@@ -67,6 +68,13 @@ public class VPVillagerProfessions {
                 holder -> holder.value().equals(VPPointOfInterestTypes.ALCHEMIST_POI.get()),
                 holder -> holder.value().equals(VPPointOfInterestTypes.ALCHEMIST_POI.get()),
                 ImmutableSet.of(), ImmutableSet.of(), SoundEvents.ENTITY_VILLAGER_WORK_CLERIC
+        ));
+
+        MINER = RegistryHelper.registerVillagerProfession("miner", () -> new VillagerProfession(
+                VillagersPlus.createStringID("miner"),
+                holder -> holder.value().equals(VPPointOfInterestTypes.MINER_POI.get()),
+                holder -> holder.value().equals(VPPointOfInterestTypes.MINER_POI.get()),
+                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.ENTITY_VILLAGER_WORK_TOOLSMITH
         ));
     }
 }

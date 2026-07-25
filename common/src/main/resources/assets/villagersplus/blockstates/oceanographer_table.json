@@ -1,21 +1,53 @@
 {
-  "variants": {
-    "facing=north": {
-      "model": "villagersplus:block/oceanographer_table"
-    },
-    "facing=south": {
-      "model": "villagersplus:block/oceanographer_table",
-      "y": 180
-    },
-    "facing=east": {
-      "model": "villagersplus:block/oceanographer_table",
-      "y": 90
-    },
-    "facing=west": {
-      "model": "villagersplus:block/oceanographer_table",
-      "y": 270
-    }
-  }
+  "multipart": [
+    {"when": {"facing": "north", "up": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_lid"}},
+    {"when": {"facing": "south", "up": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_lid", "y": 180}},
+    {"when": {"facing": "east", "up": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_lid", "y": 90}},
+    {"when": {"facing": "west", "up": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_lid", "y": 270}},
+
+    {"when": {"facing": "north", "down": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_floor"}},
+    {"when": {"facing": "south", "down": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_floor", "y": 180}},
+    {"when": {"facing": "east", "down": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_floor", "y": 90}},
+    {"when": {"facing": "west", "down": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_floor", "y": 270}},
+
+    {"when": {"north": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center"}},
+    {"when": {"north": "false", "west": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west"}},
+    {"when": {"north": "false", "east": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east"}},
+    {"when": {"north": "false", "up": "true"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center_top"}},
+    {"when": {"north": "false", "up": "true", "west": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west_top"}},
+    {"when": {"north": "false", "up": "true", "east": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east_top"}},
+    {"when": {"north": "false", "down": "true"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center_bottom"}},
+    {"when": {"north": "false", "down": "true", "west": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west_bottom"}},
+    {"when": {"north": "false", "down": "true", "east": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east_bottom"}},
+
+    {"when": {"east": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center", "y": 90}},
+    {"when": {"east": "false", "north": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west", "y": 90}},
+    {"when": {"east": "false", "south": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east", "y": 90}},
+    {"when": {"east": "false", "up": "true"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center_top", "y": 90}},
+    {"when": {"east": "false", "up": "true", "north": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west_top", "y": 90}},
+    {"when": {"east": "false", "up": "true", "south": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east_top", "y": 90}},
+    {"when": {"east": "false", "down": "true"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center_bottom", "y": 90}},
+    {"when": {"east": "false", "down": "true", "north": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west_bottom", "y": 90}},
+    {"when": {"east": "false", "down": "true", "south": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east_bottom", "y": 90}},
+
+    {"when": {"south": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center", "y": 180}},
+    {"when": {"south": "false", "east": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west", "y": 180}},
+    {"when": {"south": "false", "west": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east", "y": 180}},
+    {"when": {"south": "false", "up": "true"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center_top", "y": 180}},
+    {"when": {"south": "false", "up": "true", "east": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west_top", "y": 180}},
+    {"when": {"south": "false", "up": "true", "west": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east_top", "y": 180}},
+    {"when": {"south": "false", "down": "true"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center_bottom", "y": 180}},
+    {"when": {"south": "false", "down": "true", "east": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west_bottom", "y": 180}},
+    {"when": {"south": "false", "down": "true", "west": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east_bottom", "y": 180}},
+
+    {"when": {"west": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center", "y": 270}},
+    {"when": {"west": "false", "south": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west", "y": 270}},
+    {"when": {"west": "false", "north": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east", "y": 270}},
+    {"when": {"west": "false", "up": "true"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center_top", "y": 270}},
+    {"when": {"west": "false", "up": "true", "south": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west_top", "y": 270}},
+    {"when": {"west": "false", "up": "true", "north": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east_top", "y": 270}},
+    {"when": {"west": "false", "down": "true"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_center_bottom", "y": 270}},
+    {"when": {"west": "false", "down": "true", "south": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_west_bottom", "y": 270}},
+    {"when": {"west": "false", "down": "true", "north": "false"}, "apply": {"model": "villagersplus:block/oceanographer_table_wall_edge_east_bottom", "y": 270}}
+  ]
 }
-
-

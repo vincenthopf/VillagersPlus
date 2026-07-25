@@ -4,6 +4,7 @@ import com.lion.villagersplus.blocks.AlchemistTableBlock;
 import com.lion.villagersplus.blocks.HorticulturistTableBlock;
 import com.lion.villagersplus.blocks.OccultistTableBlock;
 import com.lion.villagersplus.blocks.OceanographerTableBlock;
+import com.lion.villagersplus.blocks.OreGrinderBlock;
 import com.lion.villagersplus.platform.RegistryHelper;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -26,6 +27,7 @@ public class VPBlocks {
     public static final Supplier<Block> CHERRY_HORTICULTURIST_TABLE_BLOCK = RegistryHelper.registerBlock("cherry_horticulturist_table", () -> new HorticulturistTableBlock(AbstractBlock.Settings.create().strength(0.5F).nonOpaque().burnable()));
     public static final Supplier<Block> BAMBOO_HORTICULTURIST_TABLE_BLOCK = RegistryHelper.registerBlock("bamboo_horticulturist_table", () -> new HorticulturistTableBlock(AbstractBlock.Settings.create().strength(0.5F).nonOpaque().burnable()));
     public static final Supplier<Block> OCCULTIST_TABLE_BLOCK = RegistryHelper.registerBlock("occultist_table", () -> new OccultistTableBlock(AbstractBlock.Settings.create().strength(0.5F).luminance((state) -> state.get(OccultistTableBlock.FILLING) * 2).nonOpaque()));
+    public static final Supplier<Block> ORE_GRINDER_BLOCK = RegistryHelper.registerBlock("ore_grinder", () -> new OreGrinderBlock(AbstractBlock.Settings.create().strength(1.5F).requiresTool().luminance((state) -> state.get(OreGrinderBlock.LIT) ? 13 : 0).nonOpaque()));
 
     public static void init() {
 

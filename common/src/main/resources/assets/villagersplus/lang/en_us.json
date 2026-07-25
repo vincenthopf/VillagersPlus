@@ -1,7 +1,13 @@
 {
   "container.alchemist_table": "Alchemist Table",
+  "container.villagersplus.ore_grinder": "Ore Grinder",
+
+  "item.villagersplus.fish_food": "Fish Food",
+  "item.villagersplus.diet_food": "Diet Food",
+  "item.villagersplus.calm_food": "Calming Food",
 
   "block.villagersplus.alchemist_table": "Alchemist Table",
+  "block.villagersplus.ore_grinder": "Ore Grinder",
   "block.villagersplus.occultist_table": "Enchanted Basin",
   "block.villagersplus.oceanographer_table": "Aquarium",
   "block.villagersplus.oak_horticulturist_table": "Oak Flower Tub",
@@ -17,11 +23,13 @@
   "block.villagersplus.bamboo_horticulturist_table": "Bamboo Flower Tub",
 
   "entity.minecraft.villager.alchemist": "Alchemist",
+  "entity.minecraft.villager.miner": "Miner",
   "entity.minecraft.villager.occultist": "Occultist",
   "entity.minecraft.villager.oceanographer": "Oceanographer",
   "entity.minecraft.villager.horticulturist": "Horticulturist",
 
   "entity.minecraft.villager.villagersplus.alchemist": "Alchemist",
+  "entity.minecraft.villager.villagersplus.miner": "Miner",
   "entity.minecraft.villager.villagersplus.occultist": "Occultist",
   "entity.minecraft.villager.villagersplus.oceanographer": "Oceanographer",
   "entity.minecraft.villager.villagersplus.horticulturist": "Horticulturist",

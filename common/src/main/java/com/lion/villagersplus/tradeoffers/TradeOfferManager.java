@@ -31,7 +31,9 @@ public class TradeOfferManager {
         tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"process_item"), new JsonProcessItemTradeOffer());
         tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_potion"), new JsonSellPotionTradeOffer());
         tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_enchanted_tool"), new JsonSellEnchantedToolTradeOffer());
+        tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_specific_enchanted_tool"), new JsonSellSpecificEnchantedToolTradeOffer());
         tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_enchanted_book"), new JsonSellEnchantedBookTradeOffer());
+        tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_specific_enchanted_book"), new JsonSellSpecificEnchantedBookTradeOffer());
         tradeOfferRegistry.put(new Identifier(VillagersPlus.MOD_ID,"sell_map"), new JsonSellStructureMapTradeOffer());
     }
 

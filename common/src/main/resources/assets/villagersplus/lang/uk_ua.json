@@ -1,7 +1,12 @@
 {
+  "item.villagersplus.fish_food": "Корм для риб",
+  "item.villagersplus.diet_food": "Дієтичний корм",
+  "item.villagersplus.calm_food": "Заспокійливий корм",
   "container.alchemist_table": "Стіл алхіміка",
+  "container.villagersplus.ore_grinder": "Дробарка руди",
 
   "block.villagersplus.alchemist_table": "Стіл алхіміка",
+  "block.villagersplus.ore_grinder": "Дробарка руди",
   "block.villagersplus.occultist_table": "Зачарована раковина",
   "block.villagersplus.oceanographer_table": "Акваріум",
   "block.villagersplus.oak_horticulturist_table": "Дубовий ящик-кашпо",
@@ -13,16 +18,18 @@
   "block.villagersplus.mangrove_horticulturist_table": "Мангровий ящик-кашпо",
   "block.villagersplus.crimson_horticulturist_table": "Багряний ящик-кашпо",
   "block.villagersplus.warped_horticulturist_table": "Химерний ящик-кашпо",
-  "block.villagersplus.cherry_horticulturist_table": "Cherry Flower Tub",
-  "block.villagersplus.bamboo_horticulturist_table": "Bamboo Flower Tub",
+  "block.villagersplus.cherry_horticulturist_table": "Вишневий ящик-кашпо",
+  "block.villagersplus.bamboo_horticulturist_table": "Бамбуковий ящик-кашпо",
 
   "entity.minecraft.villager.alchemist": "Алхімік",
+  "entity.minecraft.villager.miner": "Шахтар",
   "entity.minecraft.villager.occultist": "Окультист",
   "entity.minecraft.villager.oceanographer": "Океанограф",
   "entity.minecraft.villager.horticulturist": "Садівник",
 
 
   "entity.minecraft.villager.villagersplus.alchemist": "Алхімік",
+  "entity.minecraft.villager.villagersplus.miner": "Шахтар",
   "entity.minecraft.villager.villagersplus.occultist": "Окультист",
   "entity.minecraft.villager.villagersplus.oceanographer": "Океанограф",
   "entity.minecraft.villager.villagersplus.horticulturist": "Садівник",

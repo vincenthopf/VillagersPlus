@@ -1,0 +1,126 @@
+package com.lion.villagersplus.blocks;
+
+import com.lion.villagersplus.blockentities.OreGrinderBlockEntity;
+import com.lion.villagersplus.init.VPBlockEntities;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.*;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
+public class OreGrinderBlock extends WorkstationBlock {
+    public static final DirectionProperty FACING;
+    public static final BooleanProperty LIT;
+
+    public OreGrinderBlock(AbstractBlock.Settings settings) {
+        super(settings);
+        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(LIT, false));
+    }
+
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new OreGrinderBlockEntity(pos, state);
+    }
+
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return world.isClient ? null : checkType(type, VPBlockEntities.ORE_GRINDER_BLOCK_ENTITY.get(), OreGrinderBlockEntity::tick);
+    }
+
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (world.isClient) {
+            return ActionResult.SUCCESS;
+        } else {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof OreGrinderBlockEntity) {
+                player.openHandledScreen((OreGrinderBlockEntity) blockEntity);
+            }
+
+            return ActionResult.CONSUME;
+        }
+    }
+
+    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+        if (itemStack.hasCustomName()) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof OreGrinderBlockEntity) {
+                ((OreGrinderBlockEntity) blockEntity).setCustomName(itemStack.getName());
+            }
+        }
+    }
+
+    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+        if (!state.get(LIT)) {
+            return;
+        }
+
+        double d = (double) pos.getX() + 0.5D;
+        double e = (double) pos.getY() + 0.55D + (double) random.nextFloat() * 0.15D;
+        double f = (double) pos.getZ() + 0.5D;
+
+        if (random.nextDouble() < 0.1D) {
+            world.playSound(d, e, f, SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
+        }
+
+        world.addParticle(ParticleTypes.SMOKE, d + (random.nextDouble() - 0.5D) * 0.3D, e, f + (random.nextDouble() - 0.5D) * 0.3D, 0.0D, 0.02D, 0.0D);
+    }
+
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (!state.isOf(newState.getBlock())) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof OreGrinderBlockEntity) {
+                ItemScatterer.spawn(world, pos, (OreGrinderBlockEntity) blockEntity);
+            }
+
+            super.onStateReplaced(state, world, pos, newState, moved);
+        }
+    }
+
+    public boolean hasComparatorOutput(BlockState state) {
+        return true;
+    }
+
+    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+        return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
+    }
+
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(FACING, LIT);
+    }
+
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
+    }
+
+    public BlockState rotate(BlockState state, BlockRotation rotation) {
+        return state.with(FACING, rotation.rotate(state.get(FACING)));
+    }
+
+    public BlockState mirror(BlockState state, BlockMirror mirror) {
+        return state.rotate(mirror.getRotation(state.get(FACING)));
+    }
+
+    static {
+        FACING = HorizontalFacingBlock.FACING;
+        LIT = Properties.LIT;
+    }
+}

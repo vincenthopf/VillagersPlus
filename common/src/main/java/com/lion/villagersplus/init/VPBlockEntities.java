@@ -4,6 +4,7 @@ import com.lion.villagersplus.blockentities.AlchemistTableBlockEntity;
 import com.lion.villagersplus.blockentities.HorticulturistTableBlockEntity;
 import com.lion.villagersplus.blockentities.OccultistTableBlockEntity;
 import com.lion.villagersplus.blockentities.OceanographerTableBlockEntity;
+import com.lion.villagersplus.blockentities.OreGrinderBlockEntity;
 import com.lion.villagersplus.platform.RegistryHelper;
 import net.minecraft.block.entity.BlockEntityType;
 
@@ -21,6 +22,10 @@ public class VPBlockEntities {
 
     public static final Supplier<BlockEntityType<OccultistTableBlockEntity>> OCCULTIST_TABLE_BLOCK_ENTITY = RegistryHelper.registerBlockEntity("occultist_table_block_entity", () -> BlockEntityType.Builder.create(OccultistTableBlockEntity::new,
             VPBlocks.OCCULTIST_TABLE_BLOCK.get()).build(null)
+    );
+
+    public static final Supplier<BlockEntityType<OreGrinderBlockEntity>> ORE_GRINDER_BLOCK_ENTITY = RegistryHelper.registerBlockEntity("ore_grinder_block_entity", () -> BlockEntityType.Builder.create(OreGrinderBlockEntity::new,
+            VPBlocks.ORE_GRINDER_BLOCK.get()).build(null)
     );
 
     public static final Supplier<BlockEntityType<HorticulturistTableBlockEntity>> HORTICULTURIST_TABLE_BLOCK_ENTITY = RegistryHelper.registerBlockEntity("horticulturist_table_block_entity", () -> BlockEntityType.Builder.create(HorticulturistTableBlockEntity::new,

@@ -2,6 +2,7 @@ package com.lion.villagersplus.fabric;
 
 import com.lion.villagersplus.VillagersPlusClient;
 import com.lion.villagersplus.client.screen.AlchemistTableScreen;
+import com.lion.villagersplus.client.screen.OreGrinderScreen;
 import com.lion.villagersplus.init.VPBlockEntities;
 import com.lion.villagersplus.init.VPBlocks;
 import com.lion.villagersplus.init.VPParticles;
@@ -23,11 +24,13 @@ public class VillagersPlusClientFabric implements ClientModInitializer {
         VillagersPlusClient.postInit();
 
         HandledScreens.register(VPScreens.ALCHEMIST_TABLE_SCREEN_HANDLER, AlchemistTableScreen::new);
+        HandledScreens.register(VPScreens.ORE_GRINDER_SCREEN_HANDLER, OreGrinderScreen::new);
 
         ParticleFactoryRegistry.getInstance().register(VPParticles.EXPERIENCE_PARTICLE, ExperienceParticle.ExperienceParticleFactory::new);
         ParticleFactoryRegistry.getInstance().register(VPParticles.BUBBLE_PARTICLE, BubbleParticle.Factory::new);
 
         BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutoutMipped(), VPBlocks.OCEANOGRAPHER_TABLE_BLOCK.get());
         BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutoutMipped(), VPBlocks.ALCHEMIST_TABLE_BLOCK.get());
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutoutMipped(), VPBlocks.ORE_GRINDER_BLOCK.get());
     }
 }

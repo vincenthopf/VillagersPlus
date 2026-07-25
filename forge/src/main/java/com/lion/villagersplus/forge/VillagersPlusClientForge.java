@@ -5,6 +5,7 @@ import com.lion.villagersplus.VillagersPlusClient;
 import com.lion.villagersplus.client.renderer.HorticulturistTableBlockEntityRenderer;
 import com.lion.villagersplus.client.renderer.OceanographerTableBlockEntityRenderer;
 import com.lion.villagersplus.client.screen.AlchemistTableScreen;
+import com.lion.villagersplus.client.screen.OreGrinderScreen;
 import com.lion.villagersplus.init.VPBlockEntities;
 import com.lion.villagersplus.init.VPParticles;
 import com.lion.villagersplus.init.VPScreens;
@@ -28,6 +29,7 @@ public class VillagersPlusClientForge {
             VillagersPlusClient.postInit();
 
             HandledScreens.register(VPScreens.ALCHEMIST_TABLE_SCREEN_HANDLER, AlchemistTableScreen::new);
+            HandledScreens.register(VPScreens.ORE_GRINDER_SCREEN_HANDLER, OreGrinderScreen::new);
         });
     }
 

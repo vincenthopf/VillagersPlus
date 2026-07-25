@@ -17,10 +17,13 @@
         "villager_experience": 1
       },
       {
-        "type": "minecraft:enchanted_book{StoredEnchantments:[{id:minecraft:blast_protection,lvl:1s}]}",
-        "currency": {
-          "item": "emerald"
+        "type": "villagersplus:sell_specific_enchanted_book",
+        "basePriceIn": {
+          "item": "minecraft:emerald",
+          "count": 5
         },
+        "enchantment": "minecraft:blast_protection",
+        "level": 1,
         "price_multiplier": 0.2,
         "max_uses": 3,
         "villager_experience": 1

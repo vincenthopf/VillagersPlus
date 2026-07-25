@@ -2,6 +2,7 @@ package com.lion.villagersplus.init;
 
 import com.lion.villagersplus.VillagersPlus;
 import com.lion.villagersplus.client.screen.AlchemistTableScreenHandler;
+import com.lion.villagersplus.client.screen.OreGrinderScreenHandler;
 import com.lion.villagersplus.platform.RegistryHelper;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -14,9 +15,11 @@ public class VPScreens {
     public static void init() {}
 
     public static final ScreenHandlerType<AlchemistTableScreenHandler> ALCHEMIST_TABLE_SCREEN_HANDLER = new ScreenHandlerType<>(AlchemistTableScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
+    public static final ScreenHandlerType<OreGrinderScreenHandler> ORE_GRINDER_SCREEN_HANDLER = new ScreenHandlerType<>(OreGrinderScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
 
     static {
         RegistryHelper.registerScreenHandlerType("alchemist_table_screen_handler", ALCHEMIST_TABLE_SCREEN_HANDLER);
+        RegistryHelper.registerScreenHandlerType("ore_grinder_screen_handler", ORE_GRINDER_SCREEN_HANDLER);
     }
 
 }

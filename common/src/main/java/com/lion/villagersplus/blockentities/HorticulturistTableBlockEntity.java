@@ -13,12 +13,20 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
 public class HorticulturistTableBlockEntity extends BlockEntity implements Inventory, SidedInventory {
+    public static final float MIN_PLANT_SCALE = 0.5F;
+    public static final float MAX_PLANT_SCALE = 2.0F;
+    // Tall plants at 2x would reach ~3 blocks and clip the block above / get section-culled.
+    public static final float MAX_TALL_PLANT_SCALE = 1.5F;
+    public static final float PLANT_SCALE_STEP = 0.25F;
+
     private DefaultedList<ItemStack> inventory;
+    private float plantScale = 1.0F;
     private static final int[] SLOTS = new int[]{0, 1, 2, 3};
 
     public HorticulturistTableBlockEntity(BlockPos pos, BlockState state) {
@@ -33,7 +41,26 @@ public class HorticulturistTableBlockEntity extends BlockEntity implements Inven
     public NbtCompound toInitialChunkDataNbt() {
         NbtCompound nbtCompound = new NbtCompound();
         Inventories.writeNbt(nbtCompound, this.inventory, true);
+        nbtCompound.putFloat("PlantScale", this.plantScale);
         return nbtCompound;
+    }
+
+    public float getPlantScale() {
+        return this.plantScale;
+    }
+
+    /**
+     * Adjusts the display size of the tub's plants by {@code delta}, clamped to [MIN, max].
+     * @return true if the size actually changed (i.e. it was not already at the limit).
+     */
+    public boolean adjustPlantScale(float delta, float max) {
+        float next = MathHelper.clamp(this.plantScale + delta, MIN_PLANT_SCALE, max);
+        if (next == this.plantScale) {
+            return false;
+        }
+        this.plantScale = next;
+        this.updateListeners();
+        return true;
     }
 
     public boolean insertFlower(ItemStack flower, int slot) {
@@ -44,6 +71,24 @@ public class HorticulturistTableBlockEntity extends BlockEntity implements Inven
             return true;
         }
         return false;
+    }
+
+    /** Removes and returns the flower in the given slot, syncing the change to clients. */
+    public ItemStack removeFlower(int slot) {
+        if (slot < 0 || slot >= this.inventory.size()) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack removed = this.inventory.get(slot);
+        if (removed.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        this.inventory.set(slot, ItemStack.EMPTY);
+        if (this.isEmpty()) {
+            // A freshly planted tub always starts at normal size.
+            this.plantScale = 1.0F;
+        }
+        this.updateListeners();
+        return removed;
     }
 
     public DefaultedList<ItemStack> getInventory() {
@@ -78,11 +123,13 @@ public class HorticulturistTableBlockEntity extends BlockEntity implements Inven
         super.readNbt(nbt);
         this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
         Inventories.readNbt(nbt, this.inventory);
+        this.plantScale = nbt.contains("PlantScale") ? nbt.getFloat("PlantScale") : 1.0F;
     }
 
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         Inventories.writeNbt(nbt, this.inventory);
+        nbt.putFloat("PlantScale", this.plantScale);
     }
 
     public ItemStack getStack(int slot) {

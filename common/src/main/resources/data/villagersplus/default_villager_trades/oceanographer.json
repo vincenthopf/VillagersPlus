@@ -53,6 +53,45 @@
         },
         "max_uses": 12,
         "villager_experience": 1
+      },
+      {
+        "type": "villagersplus:sell_item",
+        "sell": {
+          "item": "villagersplus:fish_food",
+          "count": 1
+        },
+        "priceIn": {
+          "item": "emerald",
+          "count": 4
+        },
+        "max_uses": 12,
+        "villager_experience": 2
+      },
+      {
+        "type": "villagersplus:sell_item",
+        "sell": {
+          "item": "villagersplus:diet_food",
+          "count": 1
+        },
+        "priceIn": {
+          "item": "emerald",
+          "count": 4
+        },
+        "max_uses": 12,
+        "villager_experience": 2
+      },
+      {
+        "type": "villagersplus:sell_item",
+        "sell": {
+          "item": "villagersplus:calm_food",
+          "count": 1
+        },
+        "priceIn": {
+          "item": "emerald",
+          "count": 4
+        },
+        "max_uses": 12,
+        "villager_experience": 2
       }
     ],
     "apprentice": [

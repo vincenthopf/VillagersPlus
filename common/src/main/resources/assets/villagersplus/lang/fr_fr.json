@@ -1,7 +1,12 @@
 {
+  "item.villagersplus.fish_food": "Nourriture pour poissons",
+  "item.villagersplus.diet_food": "Nourriture diététique",
+  "item.villagersplus.calm_food": "Nourriture apaisante",
   "container.alchemist_table": "Table d'alchimiste",
+  "container.villagersplus.ore_grinder": "Broyeur de minerai",
 
   "block.villagersplus.alchemist_table": "Table d'alchimiste",
+  "block.villagersplus.ore_grinder": "Broyeur de minerai",
   "block.villagersplus.occultist_table": "Bassin enchanté",
   "block.villagersplus.oceanographer_table": "Aquarium",
   "block.villagersplus.oak_horticulturist_table": "Bac à fleurs en chêne",
@@ -13,15 +18,17 @@
   "block.villagersplus.mangrove_horticulturist_table": "Bac à fleurs en palétuvier",
   "block.villagersplus.crimson_horticulturist_table": "Bac à fleurs carmin",
   "block.villagersplus.warped_horticulturist_table": "Bac à fleurs biscornue",
-  "block.villagersplus.cherry_horticulturist_table": "Cherry Flower Tub",
-  "block.villagersplus.bamboo_horticulturist_table": "Bamboo Flower Tub",
+  "block.villagersplus.cherry_horticulturist_table": "Bac à fleurs en cerisier",
+  "block.villagersplus.bamboo_horticulturist_table": "Bac à fleurs en bambou",
 
   "entity.minecraft.villager.alchemist": "Alchimiste",
+  "entity.minecraft.villager.miner": "Mineur",
   "entity.minecraft.villager.occultist": "Occultiste",
   "entity.minecraft.villager.oceanographer": "Océanographe",
   "entity.minecraft.villager.horticulturist": "Jardinier",
 
   "entity.minecraft.villager.villagersplus.alchemist": "Alchimiste",
+  "entity.minecraft.villager.villagersplus.miner": "Mineur",
   "entity.minecraft.villager.villagersplus.occultist": "Occultiste",
   "entity.minecraft.villager.villagersplus.oceanographer": "Océanographe",
   "entity.minecraft.villager.villagersplus.horticulturist": "Jardinier",

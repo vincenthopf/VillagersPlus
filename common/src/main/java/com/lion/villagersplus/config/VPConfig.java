@@ -41,60 +41,74 @@ public class VPConfig implements Config {
     public int plains_occultist_weight = 10;
     public int plains_horticulturist_weight = 7;
     public int plains_oceanographer_weight = 15;
+    public int plains_miner_weight = 10;
 
     @Description("Weight of the house in a village. Higher values increase the chance of generating.")
     public int taiga_alchemist_weight = 10;
     public int taiga_occultist_weight = 10;
     public int taiga_horticulturist_weight = 7;
     public int taiga_oceanographer_weight = 15;
+    public int taiga_miner_weight = 10;
 
     @Description("Weight of the house in a village. Higher values increase the chance of generating.")
     public int savanna_alchemist_weight = 10;
     public int savanna_occultist_weight = 10;
     public int savanna_horticulturist_weight = 7;
     public int savanna_oceanographer_weight = 15;
+    public int savanna_miner_weight = 10;
 
     @Description("Weight of the house in a village. Higher values increase the chance of generating.")
     public int snowy_alchemist_weight = 10;
     public int snowy_occultist_weight = 10;
     public int snowy_horticulturist_weight = 7;
     public int snowy_oceanographer_weight = 15;
+    public int snowy_miner_weight = 10;
 
     @Description("Weight of the house in a village. Higher values increase the chance of generating.")
     public int desert_alchemist_weight = 10;
     public int desert_occultist_weight = 10;
     public int desert_horticulturist_weight = 7;
     public int desert_oceanographer_weight = 15;
+    public int desert_miner_weight = 10;
 
-    @Description("Two flower offsets in flower tub for small flowers. Each offset is added to the following offsets.")
-    public float first_flower_in_two_X_offset = 0.15F;
-    public float first_flower_in_two_Z_offset = 0.15F;
+    @Description("Scales the ore grinder's base yields. 1.0 keeps the defaults: iron/gold/coal/diamond/emerald/quartz ore -> 2, copper -> 3, lapis/redstone -> 8. Examples: 0.5 halves everything (iron ore -> 1 raw iron), 2.0 doubles it (iron ore -> 4 raw iron). Minimum result is always 1 item. (Default: 1.0)")
+    public float ore_grinder_output_multiplier = 1.0F;
 
-    public float second_flower_in_two_X_offset = -0.3F;
-    public float second_flower_in_two_Z_offset = -0.35F;
+    @Description("Whether Fortune on the inserted pickaxe additionally increases the ore grinder's yield. (Default: true)")
+    public boolean ore_grinder_fortune_enabled = true;
 
-    @Description("Three flower offsets in flower tub for small flowers. Each offset is added to the following offsets.")
-    public float first_flower_in_three_X_offset = 0.15F;
-    public float first_flower_in_three_Z_offset = 0F;
+    @Description("Durability the inserted pickaxe loses per ground ore. Unbreaking is honored per durability point. (Default: 3)")
+    public int ore_grinder_pickaxe_damage = 3;
 
-    public float second_flower_in_three_X_offset = -0.3F;
-    public float second_flower_in_three_Z_offset = -0.15F;
+    @Description("Two flower positions in the flower tub (absolute X/Z offset from the block, applied per plant).")
+    public float first_flower_in_two_X = 0.15F;
+    public float first_flower_in_two_Z = 0.15F;
 
-    public float third_flower_in_three_X_offset = -0.05F;
-    public float third_flower_in_three_Z_offset = 0.3F;
+    public float second_flower_in_two_X = -0.15F;
+    public float second_flower_in_two_Z = -0.20F;
 
-    @Description("Four flower offsets in flower tub for small flowers. Each offset is added to the following offsets.")
-    public float first_flower_in_four_X_offset = 0.15F;
-    public float first_flower_in_four_Z_offset = 0.15F;
+    @Description("Three flower positions in the flower tub (absolute X/Z offset from the block, applied per plant).")
+    public float first_flower_in_three_X = 0.15F;
+    public float first_flower_in_three_Z = 0F;
 
-    public float second_flower_in_four_X_offset = 0F;
-    public float second_flower_in_four_Z_offset = -0.35F;
+    public float second_flower_in_three_X = -0.15F;
+    public float second_flower_in_three_Z = -0.15F;
 
-    public float third_flower_in_four_X_offset = -0.3F;
-    public float third_flower_in_four_Z_offset = 0F;
+    public float third_flower_in_three_X = -0.20F;
+    public float third_flower_in_three_Z = 0.15F;
 
-    public float forth_flower_in_four_X_offset = -0.05F;
-    public float forth_flower_in_four_Z_offset = 0.37F;
+    @Description("Four flower positions in the flower tub (absolute X/Z offset from the block, applied per plant).")
+    public float first_flower_in_four_X = 0.15F;
+    public float first_flower_in_four_Z = 0.15F;
+
+    public float second_flower_in_four_X = 0.15F;
+    public float second_flower_in_four_Z = -0.20F;
+
+    public float third_flower_in_four_X = -0.15F;
+    public float third_flower_in_four_Z = -0.20F;
+
+    public float forth_flower_in_four_X = -0.20F;
+    public float forth_flower_in_four_Z = 0.17F;
 
 
 }

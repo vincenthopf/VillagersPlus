@@ -37,6 +37,7 @@ public class VPPointOfInterestTypes {
     public final static Supplier<PointOfInterestType> OCCULTIST_POI;
     public final static Supplier<PointOfInterestType> OCEANOGRAPHER_POI;
     public final static Supplier<PointOfInterestType> ALCHEMIST_POI;
+    public final static Supplier<PointOfInterestType> MINER_POI;
 
     static {
         REGISTERED_POINT_OF_INTEREST_TYPES = new HashMap<>();
@@ -57,6 +58,7 @@ public class VPPointOfInterestTypes {
         OCCULTIST_POI = registerPointOfInterest("occultist", () -> new PointOfInterestType(PointOfInterestTypes.getStatesOfBlock(VPBlocks.OCCULTIST_TABLE_BLOCK.get()), 1, 1));
         OCEANOGRAPHER_POI = registerPointOfInterest("oceanographer", () -> new PointOfInterestType(PointOfInterestTypes.getStatesOfBlock(VPBlocks.OCEANOGRAPHER_TABLE_BLOCK.get()), 1, 1));
         ALCHEMIST_POI = registerPointOfInterest("alchemist", () -> new PointOfInterestType(PointOfInterestTypes.getStatesOfBlock(VPBlocks.ALCHEMIST_TABLE_BLOCK.get()), 1, 1));
+        MINER_POI = registerPointOfInterest("miner", () -> new PointOfInterestType(PointOfInterestTypes.getStatesOfBlock(VPBlocks.ORE_GRINDER_BLOCK.get()), 1, 1));
     }
 
     public static void init() {

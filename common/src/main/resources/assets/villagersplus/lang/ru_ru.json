@@ -1,7 +1,12 @@
 {
+  "item.villagersplus.fish_food": "Корм для рыб",
+  "item.villagersplus.diet_food": "Диетический корм",
+  "item.villagersplus.calm_food": "Успокаивающий корм",
   "container.alchemist_table": "Стол алхимика",
+  "container.villagersplus.ore_grinder": "Дробилка руды",
 
   "block.villagersplus.alchemist_table": "Стол алхимика",
+  "block.villagersplus.ore_grinder": "Дробилка руды",
   "block.villagersplus.occultist_table": "Заколдованная чаша",
   "block.villagersplus.oceanographer_table": "Аквариум",
   "block.villagersplus.oak_horticulturist_table": "Дубовая цветочная кадка",
@@ -17,11 +22,13 @@
   "block.villagersplus.warped_horticulturist_table": "Искажённая цветочная кадка",
 
   "entity.minecraft.villager.alchemist": "Алхимик",
+  "entity.minecraft.villager.miner": "Шахтёр",
   "entity.minecraft.villager.occultist": "Оккультист",
   "entity.minecraft.villager.oceanographer": "Океанограф",
   "entity.minecraft.villager.horticulturist": "Садовод",
 
   "entity.minecraft.villager.villagersplus.alchemist": "Алхимик",
+  "entity.minecraft.villager.villagersplus.miner": "Шахтёр",
   "entity.minecraft.villager.villagersplus.occultist": "Оккультист",
   "entity.minecraft.villager.villagersplus.oceanographer": "Океанограф",
   "entity.minecraft.villager.villagersplus.horticulturist": "Садовод",
