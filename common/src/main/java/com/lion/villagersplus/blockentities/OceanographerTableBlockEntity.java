@@ -414,6 +414,12 @@ public class OceanographerTableBlockEntity extends BlockEntity implements Invent
             this.fishY = this.prevFishY = 0.5D;
             this.fishZ = this.prevFishZ = 0.5D;
             this.hasTarget = false;
+        } else if (!this.isInsideTank(this.fishX, this.fishY, this.fishZ, inset, insetY)) {
+            // The clearance grew around the fish (fish food made it bigger, or a neighbouring
+            // aquarium was broken and that side gained glass). Every wander step below would be
+            // rejected, so swim clear of the wall first instead of stalling inside the glass.
+            this.swimClearOfWalls(inset, insetY);
+            return;
         }
         double dx = this.targetX - this.fishX;
         double dy = this.targetY - this.fishY;
@@ -453,6 +459,61 @@ public class OceanographerTableBlockEntity extends BlockEntity implements Invent
             this.hasTarget = false; // blocked by a wall: turn in place toward a new target
             this.wanderPitch = approachDegrees(this.wanderPitch, 0.0F, 3.0F);
         }
+    }
+
+    /**
+     * Swims the fish back into the part of its block that keeps the required clearance from the
+     * glass, floor and lid. Used when that region shrank around the fish rather than the fish
+     * swimming into it, which the regular wander steps cannot resolve: from inside the margin
+     * every candidate step is still inside it, so the fish would sit motionless in the glass.
+     */
+    private void swimClearOfWalls(float inset, float insetY) {
+        int bx = MathHelper.floor(this.fishX);
+        int by = MathHelper.floor(this.fishY);
+        int bz = MathHelper.floor(this.fishZ);
+        float insetFloor = FLOOR_HEIGHT + insetY;
+        double safeX = clampBetweenWalls(this.fishX, bx, inset,
+                this.tankBlocks.contains(BlockPos.asLong(bx - 1, by, bz)),
+                this.tankBlocks.contains(BlockPos.asLong(bx + 1, by, bz)));
+        double safeY = clampBetweenWalls(this.fishY, by, insetFloor,
+                this.tankBlocks.contains(BlockPos.asLong(bx, by - 1, bz)),
+                this.tankBlocks.contains(BlockPos.asLong(bx, by + 1, bz)));
+        double safeZ = clampBetweenWalls(this.fishZ, bz, inset,
+                this.tankBlocks.contains(BlockPos.asLong(bx, by, bz - 1)),
+                this.tankBlocks.contains(BlockPos.asLong(bx, by, bz + 1)));
+
+        double dx = safeX - this.fishX;
+        double dy = safeY - this.fishY;
+        double dz = safeZ - this.fishZ;
+        double speed = 0.016D * this.speedMul;
+        this.fishX += MathHelper.clamp(dx, -speed, speed);
+        this.fishY += MathHelper.clamp(dy, -speed, speed);
+        this.fishZ += MathHelper.clamp(dz, -speed, speed);
+
+        // Face the way it is backing out, and repath once it is clear again.
+        if (dx * dx + dz * dz > 1.0E-6D) {
+            float maxTurn = 4.0F * this.speedMul;
+            float desiredYaw = (float) Math.toDegrees(MathHelper.atan2(-dx, dz));
+            float turn = MathHelper.clamp(MathHelper.subtractAngles(this.wanderYaw, desiredYaw), -maxTurn, maxTurn);
+            this.wanderYaw = MathHelper.wrapDegrees(this.wanderYaw + turn);
+        }
+        this.wanderPitch = approachDegrees(this.wanderPitch, 0.0F, 3.0F);
+        this.hasTarget = false;
+    }
+
+    /**
+     * Clamps one coordinate into the part of cell {@code cell} that stays {@code margin} away from
+     * the walls on either side; a side with a connected neighbour has no wall to clear. The extra
+     * epsilon keeps the result strictly inside {@link #isInsideTank}'s bounds, so the recovery
+     * always terminates instead of hovering on the boundary.
+     */
+    private static double clampBetweenWalls(double value, int cell, float margin, boolean openLow, boolean openHigh) {
+        double min = openLow ? cell : cell + margin + 1.0E-3D;
+        double max = openHigh ? cell + 1.0D : cell + 1.0D - margin - 1.0E-3D;
+        if (min > max) {
+            return cell + 0.5D; // clearances overlap (fish too big for the cell): aim for the centre
+        }
+        return MathHelper.clamp(value, min, max);
     }
 
     private void pickWanderTarget(float inset, float insetY) {

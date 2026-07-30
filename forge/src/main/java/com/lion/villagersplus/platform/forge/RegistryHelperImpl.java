@@ -14,6 +14,7 @@ import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.text.Text;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.poi.PointOfInterestType;
@@ -34,6 +35,7 @@ public class RegistryHelperImpl {
     public static final DeferredRegister<ItemGroup> CREATIVE_TABS = DeferredRegister.create(RegistryKeys.ITEM_GROUP, VillagersPlus.MOD_ID);
     public static final DeferredRegister<PointOfInterestType> POINT_OF_INTEREST_TYPES = DeferredRegister.create(ForgeRegistries.POI_TYPES, VillagersPlus.MOD_ID);
     public static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS = DeferredRegister.create(ForgeRegistries.VILLAGER_PROFESSIONS, VillagersPlus.MOD_ID);
+    public static final DeferredRegister<StructureProcessorType<?>> STRUCTURE_PROCESSOR_TYPES = DeferredRegister.create(RegistryKeys.STRUCTURE_PROCESSOR, VillagersPlus.MOD_ID);
 
     public static final HashMap<RegistryKey<ItemGroup>, List<Item>> ITEMS_TO_ADD = new HashMap<>();
 
@@ -88,6 +90,10 @@ public class RegistryHelperImpl {
 
     public static <T extends PointOfInterestType> Supplier<T> registerPointOfInterestType(String name, Supplier<T> pointOfInterestType) {
         return POINT_OF_INTEREST_TYPES.register(name, pointOfInterestType);
+    }
+
+    public static void registerStructureProcessorType(String name, StructureProcessorType<?> structureProcessorType) {
+        STRUCTURE_PROCESSOR_TYPES.register(name, () -> structureProcessorType);
     }
 
 }

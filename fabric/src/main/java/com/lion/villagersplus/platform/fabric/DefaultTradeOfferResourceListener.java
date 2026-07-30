@@ -27,6 +27,9 @@ public class DefaultTradeOfferResourceListener extends JsonDataLoader implements
 
     @Override
     protected void apply(Map<Identifier, JsonElement> loader, ResourceManager manager, Profiler profiler) {
+        // First listener of the trade chain, so this is where a reload starts from a clean slate.
+        TradeOfferRegistryLoader.begin();
+
         loader.forEach((identifier, jsonElement) -> {
             if (!jsonElement.isJsonObject()) {
                 return;

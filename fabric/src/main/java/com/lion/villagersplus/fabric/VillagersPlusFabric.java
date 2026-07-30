@@ -4,6 +4,7 @@ import com.lion.villagersplus.VillagersPlus;
 import com.lion.villagersplus.init.VPPointOfInterestTypes;
 import com.lion.villagersplus.platform.fabric.DefaultTradeOfferResourceListener;
 import com.lion.villagersplus.platform.fabric.TradeOfferResourceListener;
+import com.lion.villagersplus.platform.fabric.WanderingTraderTradeOfferResourceListener;
 import com.lion.villagersplus.util.StructurePoolAddition;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -22,6 +23,7 @@ public class VillagersPlusFabric implements ModInitializer {
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new DefaultTradeOfferResourceListener());
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new TradeOfferResourceListener());
+        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new WanderingTraderTradeOfferResourceListener());
     }
 
     private void registerServerEvents() {

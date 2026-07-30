@@ -2,7 +2,11 @@ package com.lion.villagersplus.tradeoffers.trades;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.lion.villagersplus.tradeoffers.PricingTradeFactory;
 import com.lion.villagersplus.tradeoffers.TradeOfferManager;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogBuilder;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogExpandable;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogExpansion;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;
@@ -36,6 +40,17 @@ public class JsonWeightedPoolTradeOffer extends JsonTradeOffer {
             JsonObject entry = element.getAsJsonObject();
             int weight = readInt(entry, "weight", 1);
             TradeOffers.Factory factory = TradeOfferManager.deserializeTrade(entry.getAsJsonObject("trade"));
+
+            // deserializeTrade wraps everything it returns in a PricingTradeFactory, and this pool is
+            // itself about to be wrapped by whoever called us. Left alone, the global cost scale would
+            // hit a pooled trade twice: at trade_cost_scale 1.5 a price of 10 would come out at 23
+            // instead of 15, while the same trade outside a pool came out correctly. Strip the inner
+            // wrapper so pricing applies exactly once, at the outermost level. The conditional wrapper
+            // sits underneath it and is preserved.
+            if (factory instanceof PricingTradeFactory pricing) {
+                factory = pricing.delegate();
+            }
+
             if (factory != null && weight > 0) {
                 entries.add(new Entry(weight, factory));
                 totalWeight += weight;
@@ -47,13 +62,26 @@ public class JsonWeightedPoolTradeOffer extends JsonTradeOffer {
     private record Entry(int weight, TradeOffers.Factory factory) {
     }
 
-    private static class Factory implements TradeOffers.Factory {
+    private static class Factory implements TradeOffers.Factory, CatalogExpandable {
         private final List<Entry> entries;
         private final int totalWeight;
 
         public Factory(List<Entry> entries, int totalWeight) {
             this.entries = entries;
             this.totalWeight = totalWeight;
+        }
+
+        /**
+         * Every sub-trade gets its own catalogue row rather than the pool showing as one row: the
+         * whole point of listing a pool is seeing what is in it and how likely each member is.
+         */
+        @Override
+        public void expandCatalog(Entity merchant, CatalogBuilder out) {
+            for (Entry entry : entries) {
+                out.pushWeight(entry.weight(), totalWeight);
+                CatalogExpansion.expand(entry.factory(), merchant, out);
+                out.popWeight();
+            }
         }
 
         @Override

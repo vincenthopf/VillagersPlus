@@ -36,13 +36,6 @@
         "priceIn": { "item": "emerald", "count": 1 },
         "max_uses": 16,
         "villager_experience": 1
-      },
-      {
-        "type": "villagersplus:sell_item",
-        "sell": { "item": "furnace", "count": 1 },
-        "priceIn": { "item": "emerald", "count": 1 },
-        "max_uses": 16,
-        "villager_experience": 1
       }
     ],
     "apprentice": [
@@ -72,13 +65,6 @@
         "type": "villagersplus:sell_item",
         "sell": { "item": "minecart", "count": 1 },
         "priceIn": { "item": "emerald", "count": 4 },
-        "max_uses": 12,
-        "villager_experience": 3
-      },
-      {
-        "type": "villagersplus:sell_item",
-        "sell": { "item": "bucket", "count": 1 },
-        "priceIn": { "item": "emerald", "count": 2 },
         "max_uses": 12,
         "villager_experience": 3
       },
@@ -146,20 +132,6 @@
       },
       {
         "type": "villagersplus:sell_item",
-        "sell": { "item": "redstone", "count": 4 },
-        "priceIn": { "item": "emerald", "count": 1 },
-        "max_uses": 12,
-        "villager_experience": 15
-      },
-      {
-        "type": "villagersplus:sell_item",
-        "sell": { "item": "lapis_lazuli", "count": 4 },
-        "priceIn": { "item": "emerald", "count": 1 },
-        "max_uses": 12,
-        "villager_experience": 15
-      },
-      {
-        "type": "villagersplus:sell_item",
         "sell": { "item": "glowstone", "count": 4 },
         "priceIn": { "item": "emerald", "count": 3 },
         "max_uses": 12,
@@ -168,14 +140,8 @@
       {
         "type": "villagersplus:sell_item",
         "sell": { "item": "tnt", "count": 1 },
-        "priceIn": { "item": "emerald", "count": 4 },
+        "priceIn": { "item": "emerald", "count": 8 },
         "max_uses": 12,
-        "villager_experience": 15
-      },
-      {
-        "type": "villagersplus:sell_enchanted_book",
-        "currency": { "item": "emerald" },
-        "max_uses": 3,
         "villager_experience": 15
       }
     ],
@@ -184,7 +150,7 @@
         "type": "villagersplus:sell_item",
         "sell": { "item": "diamond", "count": 1 },
         "priceIn": { "item": "emerald", "count": 10 },
-        "max_uses": 12,
+        "max_uses": 6,
         "villager_experience": 30
       },
       {
@@ -193,21 +159,21 @@
         "enchantment": "minecraft:efficiency",
         "level": 4,
         "basePriceIn": { "item": "emerald", "count": 32 },
-        "max_uses": 3,
+        "max_uses": 1,
         "villager_experience": 30
       },
       {
         "type": "villagersplus:sell_item",
-        "sell": { "item": "amethyst_shard", "count": 2 },
+        "sell": { "item": "amethyst_shard", "count": 1 },
         "priceIn": { "item": "emerald", "count": 1 },
         "max_uses": 12,
         "villager_experience": 30
       },
       {
         "type": "villagersplus:sell_item",
-        "sell": { "item": "obsidian", "count": 4 },
+        "sell": { "item": "obsidian", "count": 2 },
         "priceIn": { "item": "emerald", "count": 3 },
-        "max_uses": 12,
+        "max_uses": 6,
         "villager_experience": 30
       },
       {

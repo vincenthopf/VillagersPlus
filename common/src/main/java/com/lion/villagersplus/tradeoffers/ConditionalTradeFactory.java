@@ -28,4 +28,17 @@ public final class ConditionalTradeFactory implements TradeOffers.Factory {
         }
         return delegate.create(entity, random);
     }
+
+    /**
+     * The wrapped factory. The trade catalogue reaches past the gate deliberately: it lists gated
+     * trades whatever their condition currently says, and marks them, rather than showing a list
+     * that silently shrinks when it starts raining.
+     */
+    public TradeOffers.Factory delegate() {
+        return this.delegate;
+    }
+
+    public TradeCondition condition() {
+        return this.condition;
+    }
 }

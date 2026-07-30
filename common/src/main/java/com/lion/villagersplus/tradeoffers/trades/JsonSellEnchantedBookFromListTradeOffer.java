@@ -3,6 +3,8 @@ package com.lion.villagersplus.tradeoffers.trades;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lion.villagersplus.VillagersPlus;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogBuilder;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogExpandable;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
 import net.minecraft.entity.Entity;
@@ -70,7 +72,7 @@ public class JsonSellEnchantedBookFromListTradeOffer extends JsonTradeOffer {
     private record Entry(Enchantment enchantment, int minLevel, int maxLevel, int weight) {
     }
 
-    private static class Factory implements TradeOffers.Factory {
+    private static class Factory implements TradeOffers.Factory, CatalogExpandable {
         private final ItemStack currency;
         private final List<Entry> entries;
         private final int totalWeight;
@@ -104,16 +106,47 @@ public class JsonSellEnchantedBookFromListTradeOffer extends JsonTradeOffer {
 
             Entry chosen = pick(random);
             int level = MathHelper.nextInt(random, chosen.minLevel(), chosen.maxLevel());
-            ItemStack book = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(chosen.enchantment(), level));
 
+            return new TradeOffer(new ItemStack(currency.getItem(), cost(chosen.enchantment(), level)),
+                    new ItemStack(Items.BOOK), book(chosen.enchantment(), level),
+                    0, maxUses, experience, multiplier, demand);
+        }
+
+        /**
+         * Both the enchantment and its level are enumerable and the price follows from them, so every
+         * (enchantment, level) pair the list can yield gets its own row with no randomness left.
+         */
+        @Override
+        public void expandCatalog(Entity merchant, CatalogBuilder out) {
+            for (Entry entry : entries) {
+                out.pushWeight(entry.weight(), totalWeight);
+                // The level within a chosen entry is then picked uniformly, so each row is worth a
+                // fraction of the entry's weight rather than all of it.
+                out.pushShare(1.0f / (entry.maxLevel() - entry.minLevel() + 1));
+                for (int level = entry.minLevel(); level <= entry.maxLevel(); level++) {
+                    if (out.isFull()) {
+                        out.countSkipped(entry.maxLevel() - level + 1);
+                        break;
+                    }
+                    out.add(new ItemStack(currency.getItem(), cost(entry.enchantment(), level)),
+                            new ItemStack(Items.BOOK), book(entry.enchantment(), level),
+                            maxUses, experience, multiplier, demand);
+                }
+                out.popShare();
+                out.popWeight();
+            }
+        }
+
+        private ItemStack book(Enchantment enchantment, int level) {
+            return EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(enchantment, level));
+        }
+
+        private int cost(Enchantment enchantment, int level) {
             int cost = baseCost + level * costPerLevel;
-            if (chosen.enchantment().isTreasure()) {
+            if (enchantment.isTreasure()) {
                 cost *= treasureMultiplier;
             }
-            cost = MathHelper.clamp(cost, 1, 64);
-
-            return new TradeOffer(new ItemStack(currency.getItem(), cost), new ItemStack(Items.BOOK), book,
-                    0, maxUses, experience, multiplier, demand);
+            return MathHelper.clamp(cost, 1, 64);
         }
 
         private Entry pick(Random random) {

@@ -1,6 +1,7 @@
 package com.lion.villagersplus.platform;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -70,6 +71,11 @@ public class RegistryHelper {
 
     @ExpectPlatform
     public static <T extends VillagerProfession> Supplier<T> registerVillagerProfession(String name, Supplier<T> villagerProfession) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static void registerStructureProcessorType(String name, StructureProcessorType<?> structureProcessorType) {
         throw new AssertionError();
     }
 }

@@ -1,9 +1,12 @@
 package com.lion.villagersplus.tradeoffers.trades;
 
 import com.google.gson.JsonObject;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogBuilder;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogExpandable;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.map.MapIcon;
 import net.minecraft.item.map.MapState;
 import net.minecraft.registry.RegistryKeys;
@@ -31,7 +34,7 @@ public class JsonSellStructureMapTradeOffer extends JsonTradeOffer {
         return new Factory(buy, currency, structure, name, maxUses, experience, priceMultiplier);
     }
 
-    private static class Factory implements TradeOffers.Factory {
+    private static class Factory implements TradeOffers.Factory, CatalogExpandable {
         private final ItemStack currency;
         private final ItemStack buy;
         private final String nameKey;
@@ -65,6 +68,20 @@ public class JsonSellStructureMapTradeOffer extends JsonTradeOffer {
                     return null;
                 }
             }
+        }
+
+        /**
+         * One row, built without touching the world. {@code create} runs a 100-chunk
+         * {@code locateStructure} scan on the server thread; doing that just to populate a preview —
+         * every time a player opens the catalogue — would stall the server for no benefit. The row
+         * shows an unfilled map with the trade's own name, which is all the panel can usefully
+         * display anyway.
+         */
+        @Override
+        public void expandCatalog(Entity merchant, CatalogBuilder out) {
+            ItemStack map = new ItemStack(Items.FILLED_MAP);
+            map.setCustomName(Text.translatable(this.nameKey));
+            out.add(this.currency, this.buy, map, this.maxUses, this.experience, this.multiplier, 0);
         }
     }
 }

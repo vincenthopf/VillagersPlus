@@ -19,6 +19,8 @@ import java.util.List;
 
 public class StructurePoolAddition {
     private static final RegistryKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = RegistryKey.of(RegistryKeys.PROCESSOR_LIST, new Identifier("minecraft", "empty"));
+    /** Turns the miner house's chiseled stone into ores - see {@link com.lion.villagersplus.worldgen.OreVeinProcessor}. */
+    private static final RegistryKey<StructureProcessorList> MINER_PROCESSOR_LIST_KEY = RegistryKey.of(RegistryKeys.PROCESSOR_LIST, new Identifier(VillagersPlus.MOD_ID, "miner_ores"));
     private static final Identifier plainsPoolLocation = new Identifier("minecraft:village/plains/houses");
     private static final Identifier desertPoolLocation = new Identifier("minecraft:village/desert/houses");
     private static final Identifier savannaPoolLocation = new Identifier("minecraft:village/savanna/houses");
@@ -28,41 +30,54 @@ public class StructurePoolAddition {
     public static void registerJigsaws(MinecraftServer server) {
         Registry<StructurePool> templatePoolRegistry = server.getRegistryManager().get(RegistryKeys.TEMPLATE_POOL);
         Registry<StructureProcessorList> processorListRegistry = server.getRegistryManager().get(RegistryKeys.PROCESSOR_LIST);
+        RegistryEntry<StructureProcessorList> minerProcessors = processorList(processorListRegistry, MINER_PROCESSOR_LIST_KEY);
 
         addBuildingToPool(templatePoolRegistry, processorListRegistry, plainsPoolLocation, "villagersplus:village/plains/plains_alchemist", VillagersPlus.CONFIG.plains_alchemist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, plainsPoolLocation, "villagersplus:village/plains/plains_oceanographer", VillagersPlus.CONFIG.plains_oceanographer_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, plainsPoolLocation, "villagersplus:village/plains/plains_horticulturist", VillagersPlus.CONFIG.plains_horticulturist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, plainsPoolLocation, "villagersplus:village/plains/plains_occultist", VillagersPlus.CONFIG.plains_occultist_weight);
-        addBuildingToPool(templatePoolRegistry, processorListRegistry, plainsPoolLocation, "villagersplus:village/plains/plains_miner", VillagersPlus.CONFIG.plains_miner_weight);
+        addBuildingToPool(templatePoolRegistry, plainsPoolLocation, "villagersplus:village/plains/plains_miner", VillagersPlus.CONFIG.plains_miner_weight, minerProcessors);
 
         addBuildingToPool(templatePoolRegistry, processorListRegistry, taigaPoolLocation, "villagersplus:village/taiga/taiga_alchemist", VillagersPlus.CONFIG.taiga_alchemist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, taigaPoolLocation, "villagersplus:village/taiga/taiga_oceanographer", VillagersPlus.CONFIG.taiga_oceanographer_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, taigaPoolLocation, "villagersplus:village/taiga/taiga_horticulturist", VillagersPlus.CONFIG.taiga_horticulturist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, taigaPoolLocation, "villagersplus:village/taiga/taiga_occultist", VillagersPlus.CONFIG.taiga_occultist_weight);
-        addBuildingToPool(templatePoolRegistry, processorListRegistry, taigaPoolLocation, "villagersplus:village/taiga/taiga_miner", VillagersPlus.CONFIG.taiga_miner_weight);
+        addBuildingToPool(templatePoolRegistry, taigaPoolLocation, "villagersplus:village/taiga/taiga_miner", VillagersPlus.CONFIG.taiga_miner_weight, minerProcessors);
 
         addBuildingToPool(templatePoolRegistry, processorListRegistry, savannaPoolLocation, "villagersplus:village/savanna/savanna_alchemist", VillagersPlus.CONFIG.savanna_alchemist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, savannaPoolLocation, "villagersplus:village/savanna/savanna_oceanographer", VillagersPlus.CONFIG.savanna_oceanographer_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, savannaPoolLocation, "villagersplus:village/savanna/savanna_horticulturist", VillagersPlus.CONFIG.savanna_horticulturist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, savannaPoolLocation, "villagersplus:village/savanna/savanna_occultist", VillagersPlus.CONFIG.savanna_occultist_weight);
-        addBuildingToPool(templatePoolRegistry, processorListRegistry, savannaPoolLocation, "villagersplus:village/savanna/savanna_miner", VillagersPlus.CONFIG.savanna_miner_weight);
+        addBuildingToPool(templatePoolRegistry, savannaPoolLocation, "villagersplus:village/savanna/savanna_miner", VillagersPlus.CONFIG.savanna_miner_weight, minerProcessors);
 
         addBuildingToPool(templatePoolRegistry, processorListRegistry, snowyPoolLocation, "villagersplus:village/snowy/snowy_alchemist", VillagersPlus.CONFIG.snowy_alchemist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, snowyPoolLocation, "villagersplus:village/snowy/snowy_oceanographer", VillagersPlus.CONFIG.snowy_oceanographer_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, snowyPoolLocation, "villagersplus:village/snowy/snowy_horticulturist", VillagersPlus.CONFIG.snowy_horticulturist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, snowyPoolLocation, "villagersplus:village/snowy/snowy_occultist", VillagersPlus.CONFIG.snowy_occultist_weight);
-        addBuildingToPool(templatePoolRegistry, processorListRegistry, snowyPoolLocation, "villagersplus:village/snowy/snowy_miner", VillagersPlus.CONFIG.snowy_miner_weight);
 
         addBuildingToPool(templatePoolRegistry, processorListRegistry, desertPoolLocation, "villagersplus:village/desert/desert_alchemist", VillagersPlus.CONFIG.desert_alchemist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, desertPoolLocation, "villagersplus:village/desert/desert_oceanographer", VillagersPlus.CONFIG.desert_oceanographer_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, desertPoolLocation, "villagersplus:village/desert/desert_horticulturist", VillagersPlus.CONFIG.desert_horticulturist_weight);
         addBuildingToPool(templatePoolRegistry, processorListRegistry, desertPoolLocation, "villagersplus:village/desert/desert_occultist", VillagersPlus.CONFIG.desert_occultist_weight);
-        addBuildingToPool(templatePoolRegistry, processorListRegistry, desertPoolLocation, "villagersplus:village/desert/desert_miner", VillagersPlus.CONFIG.desert_miner_weight);
     }
 
     public static void addBuildingToPool(Registry<StructurePool> templatePoolRegistry, Registry<StructureProcessorList> processorListRegistry, Identifier poolRL, String nbtPieceRL, int weight) {
-        RegistryEntry<StructureProcessorList> processorList = processorListRegistry.entryOf(EMPTY_PROCESSOR_LIST_KEY);
+        addBuildingToPool(templatePoolRegistry, poolRL, nbtPieceRL, weight, processorListRegistry.entryOf(EMPTY_PROCESSOR_LIST_KEY));
+    }
 
+    /**
+     * Looks up a processor list by key, falling back to the empty one. A datapack is free to drop our
+     * lists, and a village without ore markers is a far better outcome than a server that will not
+     * start.
+     */
+    private static RegistryEntry<StructureProcessorList> processorList(Registry<StructureProcessorList> registry, RegistryKey<StructureProcessorList> key) {
+        return registry.getEntry(key).map(entry -> (RegistryEntry<StructureProcessorList>) entry).orElseGet(() -> {
+            VillagersPlus.LOGGER.warn("Processor list {} is missing, placing that building unprocessed", key.getValue());
+            return registry.entryOf(EMPTY_PROCESSOR_LIST_KEY);
+        });
+    }
+
+    public static void addBuildingToPool(Registry<StructurePool> templatePoolRegistry, Identifier poolRL, String nbtPieceRL, int weight, RegistryEntry<StructureProcessorList> processorList) {
         StructurePool pool = templatePoolRegistry.get(poolRL);
         if (pool == null) return;
 

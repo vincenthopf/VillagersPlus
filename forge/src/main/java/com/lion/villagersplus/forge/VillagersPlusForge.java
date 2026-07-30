@@ -5,6 +5,7 @@ import com.lion.villagersplus.VillagersPlusClient;
 import com.lion.villagersplus.platform.forge.DefaultTradeOfferResourceListener;
 import com.lion.villagersplus.platform.forge.RegistryHelperImpl;
 import com.lion.villagersplus.platform.forge.TradeOfferResourceListener;
+import com.lion.villagersplus.platform.forge.WanderingTraderTradeOfferResourceListener;
 import com.lion.villagersplus.util.StructurePoolAddition;
 import net.minecraft.item.ItemGroup;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,6 +41,7 @@ public class VillagersPlusForge {
         RegistryHelperImpl.MENUS.register(bus);
         RegistryHelperImpl.POINT_OF_INTEREST_TYPES.register(bus);
         RegistryHelperImpl.VILLAGER_PROFESSIONS.register(bus);
+        RegistryHelperImpl.STRUCTURE_PROCESSOR_TYPES.register(bus);
 
         bus.addListener(VillagersPlusForge::init);
         bus.addListener(VillagersPlusForge::addItemsToTabs);
@@ -61,6 +63,7 @@ public class VillagersPlusForge {
     public static void registerResourceReloader(AddReloadListenerEvent event) {
         event.addListener(new DefaultTradeOfferResourceListener());
         event.addListener(new TradeOfferResourceListener());
+        event.addListener(new WanderingTraderTradeOfferResourceListener());
     }
 
     @SubscribeEvent

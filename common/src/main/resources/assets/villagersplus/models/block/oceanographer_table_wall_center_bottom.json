@@ -1,0 +1,19 @@
+{
+	"render_type": "cutout_mipped",
+	"texture_size": [64, 64],
+	"textures": {
+		"2": "villagersplus:block/oceanographer_workstation",
+		"particle": "block/glass"
+	},
+	"elements": [
+		{
+			"from": [1, 0, 0.01],
+			"to": [15, 2, 0.01],
+			"faces": {
+				"north": {"uv": [2.125, 6.5, 3.875, 6.75], "texture": "#2"},
+				"south": {"uv": [2.125, 6.5, 3.875, 6.75], "texture": "#2"}
+			}
+		}
+	],
+	"ambient_occlusion": false
+}

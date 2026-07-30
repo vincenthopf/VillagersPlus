@@ -28,9 +28,10 @@ import java.util.Optional;
  * {@code name}, {@code lore}, {@code enchantments}, {@code color}, {@code potion},
  * {@code skull_owner}, {@code book} and a raw {@code nbt} (SNBT) escape hatch applied last.
  *
- * <p>Parsing is best-effort: an unknown item yields {@link ItemStack#EMPTY}, and malformed sugar
- * (e.g. a bad {@code nbt} string) is logged and skipped rather than throwing, matching the graceful
- * failure philosophy of the rest of the trade code.
+ * <p>An unresolvable or missing item id raises {@link TradeParseException} so the whole trade is
+ * skipped with a logged reason — a blank slot in a villager's trade list is worse than no trade.
+ * Malformed sugar (e.g. a bad {@code nbt} string) is still logged and skipped rather than throwing,
+ * since the stack itself remains usable.
  */
 public final class ItemStackSerializer {
 
@@ -42,9 +43,16 @@ public final class ItemStackSerializer {
     }
 
     public static ItemStack fromJson(JsonObject json, boolean withCount) {
-        Optional<Item> item = Registries.ITEM.getOrEmpty(Identifier.tryParse(json.get("item").getAsString()));
+        JsonElement idElement = json.get("item");
+        if (idElement == null) {
+            throw new TradeParseException("trade item is missing the \"item\" key: " + json);
+        }
+
+        String id = idElement.getAsString();
+        Optional<Item> item = Registries.ITEM.getOrEmpty(Identifier.tryParse(id));
         if (item.isEmpty()) {
-            return ItemStack.EMPTY;
+            throw new TradeParseException("unknown item id \"" + id
+                    + "\" (is the mod that provides it installed?)");
         }
 
         int count = withCount && json.has("count") ? json.get("count").getAsInt() : 1;
@@ -149,14 +157,38 @@ public final class ItemStackSerializer {
         }
     }
 
-    /** Parses either a literal string or a raw JSON text component into {@link Text}. */
+    /**
+     * Parses text that may be a plain literal string, a JSON text component given as a string
+     * (e.g. {@code "{\"text\":\"Hi\",\"color\":\"gold\"}"}), or a raw JSON object/array component.
+     * A bare string that is not JSON is treated as literal text; strict component parsing is only
+     * attempted when the string looks like JSON, and any parse failure falls back to a literal.
+     */
     private static Text parseText(JsonElement element) {
         if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
-            Text parsed = Text.Serializer.fromJson(element.getAsString());
-            return parsed != null ? parsed : Text.literal(element.getAsString());
+            String raw = element.getAsString();
+            String trimmed = raw.trim();
+            if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+                try {
+                    Text parsed = Text.Serializer.fromJson(raw);
+                    if (parsed != null) {
+                        return parsed;
+                    }
+                } catch (Exception ignored) {
+                    // fall through to literal
+                }
+            }
+            return Text.literal(raw);
         }
-        Text parsed = Text.Serializer.fromJson(element);
-        return parsed != null ? parsed : Text.empty();
+
+        try {
+            Text parsed = Text.Serializer.fromJson(element);
+            if (parsed != null) {
+                return parsed;
+            }
+        } catch (Exception ignored) {
+            // fall through to empty
+        }
+        return Text.empty();
     }
 
     /** Parses a color as an integer or a {@code #RRGGBB} hex string. */

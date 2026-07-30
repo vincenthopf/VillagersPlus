@@ -18,6 +18,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -84,6 +85,10 @@ public class RegistryHelperImpl {
     public static <T extends VillagerProfession> Supplier<T> registerVillagerProfession(String name, Supplier<T> villagerProfession) {
         var registry = Registry.register(Registries.VILLAGER_PROFESSION, new Identifier(VillagersPlus.MOD_ID, name), villagerProfession.get());
         return () -> registry;
+    }
+
+    public static void registerStructureProcessorType(String name, StructureProcessorType<?> structureProcessorType) {
+        Registry.register(Registries.STRUCTURE_PROCESSOR, new Identifier(VillagersPlus.MOD_ID, name), structureProcessorType);
     }
 
 

@@ -1,6 +1,8 @@
 package com.lion.villagersplus.tradeoffers.trades;
 
 import com.google.gson.JsonObject;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogBuilder;
+import com.lion.villagersplus.tradeoffers.catalog.CatalogExpandable;
 import com.lion.villagersplus.tradeoffers.util.Ingredient;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -8,6 +10,8 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOffers;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * Sells any single member of an item tag (resolved to one concrete item per generated offer) for a
@@ -30,7 +34,7 @@ public class JsonSellTaggedItemTradeOffer extends JsonTradeOffer {
         return new Factory(sell, currency, maxUses, experience, priceMultiplier, demand);
     }
 
-    private static class Factory implements TradeOffers.Factory {
+    private static class Factory implements TradeOffers.Factory, CatalogExpandable {
         private final Ingredient sell;
         private final ItemStack currency;
         private final int maxUses;
@@ -54,6 +58,21 @@ public class JsonSellTaggedItemTradeOffer extends JsonTradeOffer {
                 return null;
             }
             return new TradeOffer(currency.copy(), ItemStack.EMPTY, resolved, 0, maxUses, experience, multiplier, demand);
+        }
+
+        /** A tag input is one random member per generated offer, so the catalogue lists them all. */
+        @Override
+        public void expandCatalog(Entity merchant, CatalogBuilder out) {
+            List<ItemStack> variants = sell.resolveAll();
+            out.pushShare(variants.isEmpty() ? 1.0f : 1.0f / variants.size());
+            for (ItemStack resolved : variants) {
+                if (out.isFull()) {
+                    out.countSkipped(1);
+                    continue;
+                }
+                out.add(currency, ItemStack.EMPTY, resolved, maxUses, experience, multiplier, demand);
+            }
+            out.popShare();
         }
     }
 }

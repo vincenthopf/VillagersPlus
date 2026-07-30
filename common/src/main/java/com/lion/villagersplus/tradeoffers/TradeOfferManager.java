@@ -4,6 +4,7 @@ import com.lion.villagersplus.VillagersPlus;
 import com.google.gson.*;
 import com.lion.villagersplus.tradeoffers.conditions.TradeConditions;
 import com.lion.villagersplus.tradeoffers.trades.*;
+import com.lion.villagersplus.tradeoffers.util.TradeParseException;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.village.TradeOffers;
@@ -54,26 +55,56 @@ public class TradeOfferManager {
                         -> TradeOfferRegistryLoader.registerVillagerTrade(villagerProfession, integer, factory)));
     }
 
+    /**
+     * Parses a wandering-trader trade file. Unlike profession files, trades are keyed by tier name
+     * ({@code common} -> pool level 1, {@code rare} -> level 2) and fed into
+     * {@link WanderingTraderTradeLoader}. An optional top-level {@code "replace"} swaps out the
+     * vanilla trades instead of adding to them.
+     */
+    public static void deserializeWanderingTraderJson(JsonObject jsonRoot) {
+        if (jsonRoot.has("replace")) {
+            WanderingTraderTradeLoader.setReplace(jsonRoot.get("replace").getAsBoolean());
+        }
+
+        for (Map.Entry<String, JsonElement> entry : jsonRoot.get("trades").getAsJsonObject().entrySet()) {
+            Integer level = WanderingTraderTradeLoader.LEVEL_MAPPING.get(entry.getKey());
+            if (level == null) {
+                VillagersPlus.LOGGER.error("Unknown wandering trader trade tier: " + entry.getKey() + " (use 'common' or 'rare').");
+                continue;
+            }
+
+            for (JsonElement tradeElement : entry.getValue().getAsJsonArray()) {
+                JsonObject trade = tradeElement.getAsJsonObject();
+                TradeOffers.Factory factory = deserializeTrade(trade);
+                if (factory == null) {
+                    VillagersPlus.LOGGER.error("Wandering trader trade type broken: " + trade);
+                } else {
+                    WanderingTraderTradeLoader.add(level, factory);
+                }
+            }
+        }
+    }
+
     private static void deserializeTrades(@NotNull JsonObject jsonRoot, BiConsumer<Integer, TradeOffers.Factory> tradeConsumer) {
         for (Map.Entry<String, JsonElement> entry : jsonRoot.get("trades").getAsJsonObject().entrySet()) {
 
-            int level = professionMapping.get(entry.getKey());
-            JsonArray tradesArray = entry.getValue().getAsJsonArray();
+            Integer level = professionMapping.get(entry.getKey());
+            if (level == null) {
+                VillagersPlus.LOGGER.error("Unknown villager trade tier: " + entry.getKey()
+                        + " (use novice, apprentice, journeyman, expert or master).");
+                continue;
+            }
 
-            for (JsonElement tradeElement : tradesArray) {
+            for (JsonElement tradeElement : entry.getValue().getAsJsonArray()) {
                 JsonObject trade = tradeElement.getAsJsonObject();
                 TradeOffers.Factory factory = deserializeTrade(trade);
 
+                // deserializeTrade already logged why; just record which tier lost a trade.
                 if (factory == null) {
-                    VillagersPlus.LOGGER.error("Trade type: " + trade.get("type").getAsString() + " is broken.");
-                    VillagersPlus.LOGGER.error("Error in deserializing trades." +
-                            "Trade element: " + tradeElement + " and " +
-                            "Trade: " + trade + " in " + tradesArray + " is broken. \n" +
-                            "Sending faulty JSON: " + jsonRoot);
+                    VillagersPlus.LOGGER.warn("Dropped a broken trade from tier '{}': {}", entry.getKey(), trade);
                 } else {
                     tradeConsumer.accept(level, factory);
                 }
-
             }
         }
     }
@@ -86,20 +117,28 @@ public class TradeOfferManager {
      */
     @Nullable
     public static TradeOffers.Factory deserializeTrade(JsonObject trade) {
-        JsonTradeOffer adapter = tradeOfferRegistry.get(Identifier.tryParse(trade.get("type").getAsString()));
+        String type = readString(trade, "type");
+        JsonTradeOffer adapter = tradeOfferRegistry.get(Identifier.tryParse(type));
         if (adapter == null) {
+            VillagersPlus.LOGGER.warn("Skipping trade with unknown type '{}'.", type);
             return null;
         }
 
-        TradeOffers.Factory factory = adapter.deserialize(trade);
+        try {
+            TradeOffers.Factory factory = adapter.deserialize(trade);
 
-        if (VillagersPlus.CONFIG.enable_conditional_trades && trade.has("conditions")) {
-            boolean orLogic = "or".equalsIgnoreCase(readString(trade, "logic"));
-            factory = new ConditionalTradeFactory(factory,
-                    TradeConditions.parse(trade.getAsJsonArray("conditions"), orLogic));
+            if (VillagersPlus.CONFIG.enable_conditional_trades && trade.has("conditions")) {
+                boolean orLogic = "or".equalsIgnoreCase(readString(trade, "logic"));
+                factory = new ConditionalTradeFactory(factory,
+                        TradeConditions.parse(trade.getAsJsonArray("conditions"), orLogic));
+            }
+
+            return PricingTradeFactory.wrapIfNeeded(factory, trade);
+        } catch (TradeParseException e) {
+            // Skip only this trade: one bad item id must not take the rest of the datapack with it.
+            VillagersPlus.LOGGER.warn("Skipping '{}' trade: {}", type, e.getMessage());
+            return null;
         }
-
-        return PricingTradeFactory.wrapIfNeeded(factory, trade);
     }
 
     private static String readString(JsonObject object, String key) {

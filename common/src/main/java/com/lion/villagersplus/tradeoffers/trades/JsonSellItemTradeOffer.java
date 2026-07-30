@@ -17,7 +17,7 @@ public class JsonSellItemTradeOffer extends JsonTradeOffer {
         ItemStack sell = getItemStackFromJson(json.get("sell").getAsJsonObject());
         ItemStack currency = getItemStackFromJson(json.get("priceIn").getAsJsonObject());
 
-        return new Factory(sell, currency, maxUses, experience, priceMultiplier);
+        return new Factory(sell, currency, maxUses, experience, priceMultiplier, demand);
     }
 
     private static class Factory implements TradeOffers.Factory {
@@ -26,17 +26,19 @@ public class JsonSellItemTradeOffer extends JsonTradeOffer {
         private final int maxUses;
         private final int experience;
         private final float multiplier;
+        private final int demand;
 
-        public Factory(ItemStack sell, ItemStack currency, int maxUses, int experience, float multiplier) {
+        public Factory(ItemStack sell, ItemStack currency, int maxUses, int experience, float multiplier, int demand) {
             this.sell = sell;
             this.currency = currency;
             this.maxUses = maxUses;
             this.experience = experience;
             this.multiplier = multiplier;
+            this.demand = demand;
         }
 
         public TradeOffer create(Entity entity, net.minecraft.util.math.random.Random random) {
-            return new TradeOffer(currency, sell, this.maxUses, this.experience, multiplier);
+            return new TradeOffer(currency, net.minecraft.item.ItemStack.EMPTY, sell, 0, this.maxUses, this.experience, multiplier, this.demand);
         }
     }
 }

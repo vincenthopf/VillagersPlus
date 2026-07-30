@@ -9,6 +9,7 @@ import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.GameRules;
@@ -30,11 +31,23 @@ import java.util.function.Function;
  * evaluated with AND semantics by default or OR when the array is preceded by a {@code logic}
  * marker (see {@link #parse}). An unknown condition type fails closed (the trade is withheld) with
  * a loud log so typos are visible instead of silently disabling gating.
+ *
+ * <p>Each condition type registers a <em>describer</em> alongside its parser. The predicate alone is
+ * an opaque lambda, so without one the trade catalogue could tell a player a trade was gated but
+ * never say by what.
  */
 public final class TradeConditions {
 
-    private static final Map<String, Function<JsonObject, TradeCondition>> REGISTRY = new HashMap<>();
+    private static final Map<String, ConditionType> REGISTRY = new HashMap<>();
     private static final Map<String, GameRules.Key<GameRules.BooleanRule>> BOOLEAN_RULES = new HashMap<>();
+
+    /** How many entries of a list-valued condition to name before collapsing the rest into a count. */
+    private static final int DESCRIBE_LIST_LIMIT = 3;
+
+    /** A condition type: how to build its predicate, and how to phrase it for a player. */
+    private record ConditionType(Function<JsonObject, TradeCondition> parser,
+                                 Function<JsonObject, Text> describer) {
+    }
 
     static {
         GameRules.accept(new GameRules.Visitor() {
@@ -53,8 +66,14 @@ public final class TradeConditions {
     private TradeConditions() {
     }
 
+    /** Registers a condition type with a generic description. Prefer the three-arg overload. */
     public static void register(String type, Function<JsonObject, TradeCondition> factory) {
-        REGISTRY.put(type, factory);
+        register(type, factory, json -> Text.translatable("condition.villagersplus.generic", type));
+    }
+
+    public static void register(String type, Function<JsonObject, TradeCondition> factory,
+                                Function<JsonObject, Text> describer) {
+        REGISTRY.put(type, new ConditionType(factory, describer));
     }
 
     /**
@@ -62,39 +81,39 @@ public final class TradeConditions {
      * logic is AND; pass {@code "logic": "or"} on the owning trade object to switch (read separately
      * — see {@link #parse(JsonArray, boolean)}).
      */
-    public static TradeCondition parse(JsonArray conditions) {
+    public static ParsedConditions parse(JsonArray conditions) {
         return parse(conditions, false);
     }
 
-    public static TradeCondition parse(JsonArray conditions, boolean orLogic) {
-        List<TradeCondition> parsed = new ArrayList<>();
+    public static ParsedConditions parse(JsonArray conditions, boolean orLogic) {
+        List<ParsedConditions.Entry> parsed = new ArrayList<>();
         for (JsonElement element : conditions) {
             JsonObject obj = element.getAsJsonObject();
             String type = stripNamespace(obj.get("type").getAsString());
-            Function<JsonObject, TradeCondition> factory = REGISTRY.get(type);
-            if (factory == null) {
+            ConditionType conditionType = REGISTRY.get(type);
+            if (conditionType == null) {
                 VillagersPlus.LOGGER.error("Unknown trade condition type: " + type + " -- this trade will be withheld.");
-                parsed.add(villager -> false); // fail closed
+                parsed.add(new ParsedConditions.Entry(
+                        Text.translatable("condition.villagersplus.unknown", type),
+                        villager -> false)); // fail closed
                 continue;
             }
-            parsed.add(factory.apply(obj));
+            parsed.add(new ParsedConditions.Entry(
+                    describeSafely(conditionType, obj, type),
+                    conditionType.parser().apply(obj)));
         }
 
-        List<TradeCondition> finalList = parsed;
-        if (orLogic) {
-            return villager -> {
-                for (TradeCondition c : finalList) {
-                    if (c.test(villager)) return true;
-                }
-                return finalList.isEmpty();
-            };
+        return new ParsedConditions(List.copyOf(parsed), orLogic);
+    }
+
+    /** A malformed describer must never take down trade loading, so fall back to the bare type name. */
+    private static Text describeSafely(ConditionType type, JsonObject json, String typeName) {
+        try {
+            return type.describer().apply(json);
+        } catch (RuntimeException e) {
+            VillagersPlus.LOGGER.warn("Could not describe trade condition of type " + typeName, e);
+            return Text.translatable("condition.villagersplus.generic", typeName);
         }
-        return villager -> {
-            for (TradeCondition c : finalList) {
-                if (!c.test(villager)) return false;
-            }
-            return true;
-        };
     }
 
     private static String stripNamespace(String type) {
@@ -103,14 +122,14 @@ public final class TradeConditions {
     }
 
     private static void registerBuiltins() {
-        register("biome", TradeConditions::parseBiome);
-        register("dimension", TradeConditions::parseDimension);
-        register("weather", TradeConditions::parseWeather);
-        register("day_night", TradeConditions::parseDayNight);
-        register("moon_phase", TradeConditions::parseMoonPhase);
-        register("config_flag", TradeConditions::parseConfigFlag);
-        register("gamerule", TradeConditions::parseGamerule);
-        register("job_site_block", TradeConditions::parseJobSite);
+        register("biome", TradeConditions::parseBiome, TradeConditions::describeBiome);
+        register("dimension", TradeConditions::parseDimension, TradeConditions::describeDimension);
+        register("weather", TradeConditions::parseWeather, TradeConditions::describeWeather);
+        register("day_night", TradeConditions::parseDayNight, TradeConditions::describeDayNight);
+        register("moon_phase", TradeConditions::parseMoonPhase, TradeConditions::describeMoonPhase);
+        register("config_flag", TradeConditions::parseConfigFlag, TradeConditions::describeConfigFlag);
+        register("gamerule", TradeConditions::parseGamerule, TradeConditions::describeGamerule);
+        register("job_site_block", TradeConditions::parseJobSite, TradeConditions::describeJobSite);
     }
 
     // --- Built-in condition parsers ---------------------------------------------------------
@@ -193,6 +212,79 @@ public final class TradeConditions {
         return villager -> jobSiteBlockId(villager)
                 .map(id -> blocks.contains(id.toString()))
                 .orElse(false);
+    }
+
+    // --- Built-in condition describers ------------------------------------------------------
+
+    private static Text describeBiome(JsonObject json) {
+        if (json.has("tag")) {
+            return Text.translatable("condition.villagersplus.biome_tag", prettify(json.get("tag").getAsString()));
+        }
+        return Text.translatable("condition.villagersplus.biome", joinArray(json.getAsJsonArray("biomes")));
+    }
+
+    private static Text describeDimension(JsonObject json) {
+        return Text.translatable("condition.villagersplus.dimension", prettify(json.get("dimension").getAsString()));
+    }
+
+    private static Text describeWeather(JsonObject json) {
+        String state = json.get("state").getAsString();
+        String key = switch (state) {
+            case "thunder", "rain" -> state;
+            default -> "clear";
+        };
+        return Text.translatable("condition.villagersplus.weather",
+                Text.translatable("condition.villagersplus.weather." + key));
+    }
+
+    private static Text describeDayNight(JsonObject json) {
+        String time = "day".equals(json.get("time").getAsString()) ? "day" : "night";
+        return Text.translatable("condition.villagersplus.day_night",
+                Text.translatable("condition.villagersplus.day_night." + time));
+    }
+
+    private static Text describeMoonPhase(JsonObject json) {
+        return Text.translatable("condition.villagersplus.moon_phase", joinArray(json.getAsJsonArray("phases")));
+    }
+
+    private static Text describeConfigFlag(JsonObject json) {
+        boolean expected = !json.has("value") || json.get("value").getAsBoolean();
+        return Text.translatable("condition.villagersplus.config_flag",
+                json.get("field").getAsString(), String.valueOf(expected));
+    }
+
+    private static Text describeGamerule(JsonObject json) {
+        boolean expected = !json.has("value") || json.get("value").getAsBoolean();
+        return Text.translatable("condition.villagersplus.gamerule",
+                json.get("rule").getAsString(), String.valueOf(expected));
+    }
+
+    private static Text describeJobSite(JsonObject json) {
+        if (json.has("wood_variant")) {
+            return Text.translatable("condition.villagersplus.job_site_wood", json.get("wood_variant").getAsString());
+        }
+        return Text.translatable("condition.villagersplus.job_site_block", joinArray(json.getAsJsonArray("blocks")));
+    }
+
+    /** Comma-joins a JSON array, naming at most {@link #DESCRIBE_LIST_LIMIT} entries. */
+    private static String joinArray(JsonArray array) {
+        StringBuilder joined = new StringBuilder();
+        int shown = Math.min(array.size(), DESCRIBE_LIST_LIMIT);
+        for (int i = 0; i < shown; i++) {
+            if (i > 0) {
+                joined.append(", ");
+            }
+            joined.append(prettify(array.get(i).getAsString()));
+        }
+        if (array.size() > shown) {
+            joined.append(" +").append(array.size() - shown);
+        }
+        return joined.toString();
+    }
+
+    /** Drops the {@code minecraft:} namespace so descriptions stay readable in a tooltip. */
+    private static String prettify(String id) {
+        return id.startsWith("minecraft:") ? id.substring("minecraft:".length()) : id;
     }
 
     private static Optional<Identifier> jobSiteBlockId(Entity villager) {

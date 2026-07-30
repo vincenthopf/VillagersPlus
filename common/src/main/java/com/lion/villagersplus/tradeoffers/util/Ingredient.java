@@ -10,6 +10,8 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -61,7 +63,32 @@ public final class Ingredient {
         }
 
         RegistryEntryList.Named<net.minecraft.item.Item> list = entries.get();
-        RegistryEntry<net.minecraft.item.Item> entry = list.get(random.nextInt(list.size()));
+        return build(list.get(random.nextInt(list.size())));
+    }
+
+    /**
+     * Every stack this ingredient could resolve to — one entry for a fixed ingredient, one per tag
+     * member otherwise. Used by the trade catalogue, which lists all the variants a trade can take
+     * rather than sampling one.
+     */
+    public List<ItemStack> resolveAll() {
+        if (tag == null) {
+            return List.of(fixed.copy());
+        }
+
+        Optional<RegistryEntryList.Named<net.minecraft.item.Item>> entries = Registries.ITEM.getEntryList(tag);
+        if (entries.isEmpty()) {
+            return List.of();
+        }
+
+        List<ItemStack> stacks = new ArrayList<>();
+        for (RegistryEntry<net.minecraft.item.Item> entry : entries.get()) {
+            stacks.add(build(entry));
+        }
+        return stacks;
+    }
+
+    private ItemStack build(RegistryEntry<net.minecraft.item.Item> entry) {
         ItemStack stack = new ItemStack(entry.value(), count);
         if (componentSugar != null) {
             ItemStackSerializer.applyComponents(stack, componentSugar);

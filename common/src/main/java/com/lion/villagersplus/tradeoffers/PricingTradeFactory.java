@@ -45,15 +45,24 @@ public final class PricingTradeFactory implements TradeOffers.Factory {
         }
 
         ItemStack first = offer.getOriginalFirstBuyItem().copy();
-        int scaled = MathHelper.clamp(Math.round(first.getCount() * factor), 1, first.getMaxCount());
-        first.setCount(scaled);
+        first.setCount(scaleCount(first.getCount(), first.getMaxCount(), factor));
 
         return new TradeOffer(first, offer.getSecondBuyItem(), offer.getSellItem(),
                 offer.getUses(), offer.getMaxUses(), offer.getMerchantExperience(),
                 offer.getPriceMultiplier(), offer.getDemandBonus());
     }
 
-    private float priceFactor(Entity entity) {
+    /** The wrapped factory, so the catalogue can enumerate it and re-apply pricing itself. */
+    public TradeOffers.Factory delegate() {
+        return this.delegate;
+    }
+
+    /** Shared so catalogue rows are priced exactly the way a real generated offer would be. */
+    public static int scaleCount(int count, int maxCount, float factor) {
+        return MathHelper.clamp(Math.round(count * factor), 1, maxCount);
+    }
+
+    public float priceFactor(Entity entity) {
         float factor = VillagersPlus.CONFIG.trade_cost_scale;
         if (VillagersPlus.CONFIG.enable_time_of_day_pricing) {
             float variance = VillagersPlus.CONFIG.time_of_day_price_variance;
