@@ -2,12 +2,6 @@ package com.lion.villagersplus.mixin;
 
 import com.lion.villagersplus.util.LegacyItemStacks;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.world.PersistentStateManager;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.storage.VersionedChunkStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,6 +9,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.storage.ChunkStorage;
+import net.minecraft.world.level.storage.DimensionDataStorage;
 
 /// Updates this mod's stored inventories on the way in from an older world.
 ///
@@ -27,15 +27,15 @@ import java.util.function.Supplier;
 ///
 /// Running before vanilla's own fixer is safe because that fixer never reaches inside a block entity
 /// whose id it does not know, which is the very reason this class has to exist.
-@Mixin(VersionedChunkStorage.class)
+@Mixin(ChunkStorage.class)
 public class VersionedChunkStorageMixin {
 
-    @Inject(method = "updateChunkNbt", at = @At("HEAD"))
-    private void villagersplus$migrateStoredItems(RegistryKey<World> worldKey,
-                                                  Supplier<PersistentStateManager> persistentStateManagerFactory,
-                                                  NbtCompound nbt,
-                                                  Optional<RegistryKey<MapCodec<? extends ChunkGenerator>>> generatorCodecKey,
-                                                  CallbackInfoReturnable<NbtCompound> cir) {
-        LegacyItemStacks.migrateChunk(nbt, VersionedChunkStorage.getDataVersion(nbt));
+    @Inject(method = "upgradeChunkTag", at = @At("HEAD"))
+    private void villagersplus$migrateStoredItems(ResourceKey<Level> worldKey,
+                                                  Supplier<DimensionDataStorage> persistentStateManagerFactory,
+                                                  CompoundTag nbt,
+                                                  Optional<ResourceKey<MapCodec<? extends ChunkGenerator>>> generatorCodecKey,
+                                                  CallbackInfoReturnable<CompoundTag> cir) {
+        LegacyItemStacks.migrateChunk(nbt, ChunkStorage.getVersion(nbt));
     }
 }

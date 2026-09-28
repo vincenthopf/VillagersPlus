@@ -3,32 +3,6 @@ package com.lion.villagersplus.util;
 import com.lion.villagersplus.VillagersPlus;
 import com.lion.villagersplus.mixin.SinglePoolElementAccessor;
 import com.lion.villagersplus.mixin.StructurePiecesCollectorAccessor;
-import net.minecraft.block.JigsawBlock;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.structure.StructureLiquidSettings;
-import net.minecraft.structure.MineshaftGenerator;
-import net.minecraft.structure.PoolStructurePiece;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.structure.StructurePieceType;
-import net.minecraft.structure.StructurePiecesCollector;
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.structure.pool.SinglePoolElement;
-import net.minecraft.structure.pool.StructurePool;
-import net.minecraft.structure.pool.StructurePoolElement;
-import net.minecraft.structure.processor.StructureProcessorList;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.gen.structure.MineshaftStructure;
-import net.minecraft.world.gen.structure.Structure;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +10,31 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.JigsawBlock;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.structures.MineshaftPieces;
+import net.minecraft.world.level.levelgen.structure.structures.MineshaftStructure;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 /**
  * Digs the miner's shaft below the miner's house and grows a vanilla mineshaft out of its bottom.
@@ -66,23 +65,23 @@ public final class VanillaMineshaftAttachment {
     private static final int MAX_SEGMENTS = 16;
 
     /** The shaft templates belonging to one miner's house variant. */
-    private record Shaft(Identifier segment, Identifier end) { }
+    private record Shaft(ResourceLocation segment, ResourceLocation end) { }
 
-    private static final Map<Identifier, Shaft> SHAFTS = Map.of(
+    private static final Map<ResourceLocation, Shaft> SHAFTS = Map.of(
             id("village/plains/plains_miner"), new Shaft(id("mine/mine_pool/plains_mineshaft"), id("mine/mine_pool/plains_mineshaft_end")),
             id("village/savanna/savanna_miner"), new Shaft(id("mine/mine_pool/savanna_mineshaft"), id("mine/mine_pool/savanna_mineshaft_end")),
             id("village/taiga/taiga_miner"), new Shaft(id("mine/mine_pool/taiga_mineshaft"), id("mine/mine_pool/taiga_mineshaft_end")));
 
     /** Every template this class places itself, for {@link #isBeardExempt}. */
-    private static final Set<Identifier> SHAFT_TEMPLATES = SHAFTS.values().stream()
+    private static final Set<ResourceLocation> SHAFT_TEMPLATES = SHAFTS.values().stream()
             .flatMap(shaft -> Stream.of(shaft.segment(), shaft.end()))
             .collect(Collectors.toUnmodifiableSet());
 
     private VanillaMineshaftAttachment() {
     }
 
-    private static Identifier id(String path) {
-        return Identifier.of(VillagersPlus.MOD_ID, path);
+    private static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(VillagersPlus.MOD_ID, path);
     }
 
     /**
@@ -90,8 +89,8 @@ public final class VanillaMineshaftAttachment {
      * ours: without one of our miner houses among the pieces this returns after a single list walk
      * and nothing is added.
      */
-    public static void append(StructurePiecesCollector collector, Structure.Context context) {
-        for (PoolStructurePiece hut : findMinerHouses(collector)) {
+    public static void append(StructurePiecesBuilder collector, Structure.GenerationContext context) {
+        for (PoolElementStructurePiece hut : findMinerHouses(collector)) {
             appendShaft(collector, context, hut);
         }
     }
@@ -116,27 +115,27 @@ public final class VanillaMineshaftAttachment {
         // No structure with a terrain adaptation places mineshaft pieces, so any that reach this
         // point are ours: vanilla's own mineshaft declares none and never enters the sampler.
         StructurePieceType type = piece.getType();
-        if (type == StructurePieceType.MINESHAFT_CORRIDOR || type == StructurePieceType.MINESHAFT_CROSSING
-                || type == StructurePieceType.MINESHAFT_STAIRS || type == StructurePieceType.MINESHAFT_ROOM) {
+        if (type == StructurePieceType.MINE_SHAFT_CORRIDOR || type == StructurePieceType.MINE_SHAFT_CROSSING
+                || type == StructurePieceType.MINE_SHAFT_STAIRS || type == StructurePieceType.MINE_SHAFT_ROOM) {
             return true;
         }
         // The shaft itself is made of ordinary pool pieces, so those have to be named.
-        return piece instanceof PoolStructurePiece pool
+        return piece instanceof PoolElementStructurePiece pool
                 && locationOf(pool).filter(SHAFT_TEMPLATES::contains).isPresent();
     }
 
-    private static void appendShaft(StructurePiecesCollector collector, Structure.Context context, PoolStructurePiece hut) {
+    private static void appendShaft(StructurePiecesBuilder collector, Structure.GenerationContext context, PoolElementStructurePiece hut) {
         Shaft shaft = locationOf(hut).map(SHAFTS::get).orElse(null);
         if (shaft == null) {
             return;
         }
 
         StructureTemplateManager templates = context.structureTemplateManager();
-        BlockRotation rotation = hut.getRotation();
-        BlockBox houseBox = hut.getBoundingBox();
-        Random random = randomFor(context, houseBox);
+        Rotation rotation = hut.getRotation();
+        BoundingBox houseBox = hut.getBoundingBox();
+        RandomSource random = randomFor(context, houseBox);
 
-        BlockPos marker = jigsawPos(hut.getPoolElement(), templates, hut.getPos(), rotation, random, SHAFT_START_JIGSAW, Direction.DOWN);
+        BlockPos marker = jigsawPos(hut.getElement(), templates, hut.getPosition(), rotation, random, SHAFT_START_JIGSAW, Direction.DOWN);
         if (marker == null) {
             return;
         }
@@ -145,26 +144,26 @@ public final class VanillaMineshaftAttachment {
         SinglePoolElement end = element(context, shaft.end());
 
         // Stop before the world floor even if SHAFT_DEPTH would reach past it.
-        int target = Math.max(houseBox.getMinY() - SHAFT_DEPTH, context.world().getBottomY() + 16);
+        int target = Math.max(houseBox.minY() - SHAFT_DEPTH, context.heightAccessor().getMinY() + 16);
 
-        BlockPos connect = marker.down();
+        BlockPos connect = marker.below();
 
-        List<PoolStructurePiece> pieces = new ArrayList<>();
+        List<PoolElementStructurePiece> pieces = new ArrayList<>();
         for (int i = 0; i < MAX_SEGMENTS && connect.getY() > target; i++) {
-            PoolStructurePiece piece = place(segment, templates, rotation, connect, random);
+            PoolElementStructurePiece piece = place(segment, templates, rotation, connect, random);
             if (piece == null) {
                 return;
             }
             pieces.add(piece);
 
-            BlockPos bottom = jigsawPos(segment, templates, piece.getPos(), rotation, random, SHAFT_JIGSAW, Direction.DOWN);
+            BlockPos bottom = jigsawPos(segment, templates, piece.getPosition(), rotation, random, SHAFT_JIGSAW, Direction.DOWN);
             if (bottom == null) {
                 break;
             }
-            connect = bottom.down();
+            connect = bottom.below();
         }
 
-        PoolStructurePiece closing = place(end, templates, rotation, connect, random);
+        PoolElementStructurePiece closing = place(end, templates, rotation, connect, random);
         if (closing != null) {
             pieces.add(closing);
         }
@@ -172,7 +171,7 @@ public final class VanillaMineshaftAttachment {
             return;
         }
 
-        for (PoolStructurePiece piece : pieces) {
+        for (PoolElementStructurePiece piece : pieces) {
             collector.addPiece(piece);
         }
 
@@ -182,42 +181,42 @@ public final class VanillaMineshaftAttachment {
     }
 
     /**
-     * Hangs real {@link MineshaftGenerator} pieces off the side of the shaft's closing piece, the way
+     * Hangs real {@link MineshaftPieces} pieces off the side of the shaft's closing piece, the way
      * {@code MineshaftStructure} grows a mineshaft off its own starting room.
      * <p>
      * The corridor leaves through one of the four walls instead of starting in the middle of the
      * shaft: it begins exactly on the wall column, so its air fill punches a doorway through that one
      * layer and everything beyond it is dug fresh out of the rock.
      */
-    private static void appendVanillaMineshaft(StructurePiecesCollector collector, Structure.Context context, List<PoolStructurePiece> shaft) {
-        BlockBox anchor = shaft.get(shaft.size() - 1).getBoundingBox();
+    private static void appendVanillaMineshaft(StructurePiecesBuilder collector, Structure.GenerationContext context, List<PoolElementStructurePiece> shaft) {
+        BoundingBox anchor = shaft.get(shaft.size() - 1).getBoundingBox();
         BlockPos center = anchor.getCenter();
 
         // Derived from the anchor rather than reusing the shaft's random, so the mineshaft layout stays
         // put even if the number of shaft segments above it ever changes.
-        Random random = randomFor(context, anchor);
+        RandomSource random = randomFor(context, anchor);
 
-        Direction direction = Direction.fromHorizontalQuarterTurns(random.nextInt(4));
-        int y = anchor.getMinY() + 1;
+        Direction direction = Direction.from2DDataValue(random.nextInt(4));
+        int y = anchor.minY() + 1;
 
         // MineshaftCorridor#getBoundingBox reads the position as the corner the corridor grows away
         // from: the near wall on the axis it travels along, and the low edge of the three-wide span on
         // the other one. Centring that span on the shaft puts the doorway in the middle of the wall.
         int startX = switch (direction) {
-            case WEST -> anchor.getMinX();
-            case EAST -> anchor.getMaxX();
+            case WEST -> anchor.minX();
+            case EAST -> anchor.maxX();
             default -> center.getX() - 1;
         };
         int startZ = switch (direction) {
-            case NORTH -> anchor.getMinZ();
-            case SOUTH -> anchor.getMaxZ();
+            case NORTH -> anchor.minZ();
+            case SOUTH -> anchor.maxZ();
             default -> center.getZ() - 1;
         };
 
         // Measured against an empty holder because the first corridor is meant to bite into the shaft
         // wall. Against the real collector every length it tries would be rejected, it would return
         // null, and the mineshaft would silently never appear.
-        BlockBox box = MineshaftGenerator.MineshaftCorridor.getBoundingBox(new StructurePiecesCollector(), random, startX, y, startZ, direction);
+        BoundingBox box = MineshaftPieces.MineShaftCorridor.findCorridorSize(new StructurePiecesBuilder(), random, startX, y, startZ, direction);
         if (box == null) {
             return;
         }
@@ -225,15 +224,15 @@ public final class VanillaMineshaftAttachment {
         // Everything after the first corridor is laid out in a collector of its own, seeded with the
         // shaft so the branches keep avoiding it. Handing them straight to the real collector would
         // mean taking every piece the generator produces, and the ones too far out cannot be built.
-        StructurePiecesCollector staging = new StructurePiecesCollector();
-        for (PoolStructurePiece piece : shaft) {
+        StructurePiecesBuilder staging = new StructurePiecesBuilder();
+        for (PoolElementStructurePiece piece : shaft) {
             staging.addPiece(piece);
         }
 
-        MineshaftGenerator.MineshaftCorridor root = new MineshaftGenerator.MineshaftCorridor(0, random, box, direction, MineshaftStructure.Type.NORMAL);
+        MineshaftPieces.MineShaftCorridor root = new MineshaftPieces.MineShaftCorridor(0, random, box, direction, MineshaftStructure.Type.NORMAL);
         staging.addPiece(root);
         // Recurses through MineshaftGenerator#pieceGenerator, which caps itself at chain length 8 and 80 blocks from the root.
-        root.fillOpenings(root, staging, random);
+        root.addChildren(root, staging, random);
 
         // addPiece only ever appends, so everything past the seeded shaft is what was generated here.
         List<StructurePiece> staged = ((StructurePiecesCollectorAccessor) staging).getPieces();
@@ -255,10 +254,10 @@ public final class VanillaMineshaftAttachment {
      * and then stops dead in mid-air, cut along the chunk border. Dropping it whole leaves an honest
      * dead end instead.
      */
-    private static boolean isReachable(ChunkPos origin, BlockBox box) {
+    private static boolean isReachable(ChunkPos origin, BoundingBox box) {
         int reach = 8 * 16;
-        return box.getMinX() >= origin.getStartX() - reach && box.getMaxX() <= origin.getEndX() + reach
-                && box.getMinZ() >= origin.getStartZ() - reach && box.getMaxZ() <= origin.getEndZ() + reach;
+        return box.minX() >= origin.getMinBlockX() - reach && box.maxX() <= origin.getMaxBlockX() + reach
+                && box.minZ() >= origin.getMinBlockZ() - reach && box.maxZ() <= origin.getMaxBlockZ() + reach;
     }
 
     /**
@@ -266,62 +265,62 @@ public final class VanillaMineshaftAttachment {
      * jigsaw offsets and the bounding box are read in the element's own origin frame and shifted by the
      * same delta, which is how {@code StructurePoolBasedGenerator} places a piece too.
      */
-    private static PoolStructurePiece place(SinglePoolElement element, StructureTemplateManager templates, BlockRotation rotation, BlockPos connect, Random random) {
-        BlockPos top = jigsawPos(element, templates, BlockPos.ORIGIN, rotation, random, SHAFT_JIGSAW, Direction.UP);
+    private static PoolElementStructurePiece place(SinglePoolElement element, StructureTemplateManager templates, Rotation rotation, BlockPos connect, RandomSource random) {
+        BlockPos top = jigsawPos(element, templates, BlockPos.ZERO, rotation, random, SHAFT_JIGSAW, Direction.UP);
         if (top == null) {
             return null;
         }
 
         BlockPos pos = connect.subtract(top);
-        BlockBox box = element.getBoundingBox(templates, pos, rotation);
+        BoundingBox box = element.getBoundingBox(templates, pos, rotation);
         // Jigsaw pieces carry their liquid handling explicitly since 1.21. APPLY_WATERLOGGING is what
         // JigsawStructure defaults to, so this keeps the pre-1.21 behaviour.
-        return new PoolStructurePiece(templates, element, pos, 0, rotation, box, StructureLiquidSettings.APPLY_WATERLOGGING);
+        return new PoolElementStructurePiece(templates, element, pos, 0, rotation, box, LiquidSettings.APPLY_WATERLOGGING);
     }
 
     /** World position of the jigsaw block called {@code name} that points in {@code facing}, or null. */
-    private static BlockPos jigsawPos(StructurePoolElement element, StructureTemplateManager templates, BlockPos pos, BlockRotation rotation, Random random, String name, Direction facing) {
+    private static BlockPos jigsawPos(StructurePoolElement element, StructureTemplateManager templates, BlockPos pos, Rotation rotation, RandomSource random, String name, Direction facing) {
         // getStructureBlockInfos returns JigsawBlockInfo since 1.21.6, which parses the jigsaw NBT
         // for us - the name is a typed Identifier now instead of a raw string dug out of the tag.
-        for (StructureTemplate.JigsawBlockInfo jigsaw : element.getStructureBlockInfos(templates, pos, rotation, random)) {
+        for (StructureTemplate.JigsawBlockInfo jigsaw : element.getShuffledJigsawBlocks(templates, pos, rotation, random)) {
             StructureTemplate.StructureBlockInfo info = jigsaw.info();
             if (jigsaw.name() == null || !name.equals(jigsaw.name().toString())) {
                 continue;
             }
-            if (JigsawBlock.getFacing(info.state()) == facing) {
+            if (JigsawBlock.getFrontFacing(info.state()) == facing) {
                 return info.pos();
             }
         }
         return null;
     }
 
-    private static SinglePoolElement element(Structure.Context context, Identifier location) {
-        RegistryEntry<StructureProcessorList> processors = context.dynamicRegistryManager()
-                .getOrThrow(RegistryKeys.PROCESSOR_LIST)
-                .getOrThrow(RegistryKey.of(RegistryKeys.PROCESSOR_LIST, Identifier.of("minecraft", "empty")));
+    private static SinglePoolElement element(Structure.GenerationContext context, ResourceLocation location) {
+        Holder<StructureProcessorList> processors = context.registryAccess()
+                .lookupOrThrow(Registries.PROCESSOR_LIST)
+                .getOrThrow(ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.fromNamespaceAndPath("minecraft", "empty")));
 
-        return StructurePoolElement.ofProcessedSingle(location.toString(), processors).apply(StructurePool.Projection.RIGID);
+        return StructurePoolElement.single(location.toString(), processors).apply(StructureTemplatePool.Projection.RIGID);
     }
 
-    private static Random randomFor(Structure.Context context, BlockBox box) {
-        return Random.create(context.seed()
+    private static RandomSource randomFor(Structure.GenerationContext context, BoundingBox box) {
+        return RandomSource.create(context.seed()
                 ^ (long) box.getCenter().getX() * 341873128712L
                 ^ (long) box.getCenter().getZ() * 132897987541L
-                ^ (long) box.getMinY());
+                ^ (long) box.minY());
     }
 
-    private static List<PoolStructurePiece> findMinerHouses(StructurePiecesCollector collector) {
-        List<PoolStructurePiece> found = new ArrayList<>();
+    private static List<PoolElementStructurePiece> findMinerHouses(StructurePiecesBuilder collector) {
+        List<PoolElementStructurePiece> found = new ArrayList<>();
         for (StructurePiece piece : ((StructurePiecesCollectorAccessor) collector).getPieces()) {
-            if (piece instanceof PoolStructurePiece poolPiece && locationOf(poolPiece).filter(SHAFTS::containsKey).isPresent()) {
+            if (piece instanceof PoolElementStructurePiece poolPiece && locationOf(poolPiece).filter(SHAFTS::containsKey).isPresent()) {
                 found.add(poolPiece);
             }
         }
         return found;
     }
 
-    private static Optional<Identifier> locationOf(PoolStructurePiece piece) {
-        if (piece.getPoolElement() instanceof SinglePoolElement single) {
+    private static Optional<ResourceLocation> locationOf(PoolElementStructurePiece piece) {
+        if (piece.getElement() instanceof SinglePoolElement single) {
             return ((SinglePoolElementAccessor) single).getLocation().left();
         }
         return Optional.empty();

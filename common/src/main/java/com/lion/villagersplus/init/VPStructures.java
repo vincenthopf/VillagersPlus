@@ -2,7 +2,7 @@ package com.lion.villagersplus.init;
 
 import com.lion.villagersplus.platform.RegistryHelper;
 import com.lion.villagersplus.worldgen.OreVeinProcessor;
-import net.minecraft.structure.processor.StructureProcessorType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
 public class VPStructures {
 

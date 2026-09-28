@@ -12,9 +12,9 @@ import com.lion.villagersplus.particles.ExperienceParticle;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.render.BlockRenderLayer;
-import net.minecraft.client.render.RenderLayers;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 public class VillagersPlusClientFabric implements ClientModInitializer {
 
@@ -23,8 +23,8 @@ public class VillagersPlusClientFabric implements ClientModInitializer {
         VillagersPlusClient.init();
         VillagersPlusClient.postInit();
 
-        HandledScreens.register(VPScreens.ALCHEMIST_TABLE_SCREEN_HANDLER, AlchemistTableScreen::new);
-        HandledScreens.register(VPScreens.ORE_GRINDER_SCREEN_HANDLER, OreGrinderScreen::new);
+        MenuScreens.register(VPScreens.ALCHEMIST_TABLE_SCREEN_HANDLER, AlchemistTableScreen::new);
+        MenuScreens.register(VPScreens.ORE_GRINDER_SCREEN_HANDLER, OreGrinderScreen::new);
 
         ParticleFactoryRegistry.getInstance().register(VPParticles.EXPERIENCE_PARTICLE, ExperienceParticle.ExperienceParticleFactory::new);
         ParticleFactoryRegistry.getInstance().register(VPParticles.BUBBLE_PARTICLE, BubbleParticle.Factory::new);
@@ -32,8 +32,8 @@ public class VillagersPlusClientFabric implements ClientModInitializer {
         // Fabric API dropped blockrenderlayer-v1 for 1.21.6+ because the chunk layer moved into the
         // vanilla BlockRenderLayer enum. RenderLayers.BLOCKS is the map that API wrote into, so
         // write to it directly; the field is widened in villagersplus.accesswidener.
-        RenderLayers.BLOCKS.put(VPBlocks.OCEANOGRAPHER_TABLE_BLOCK.get(), BlockRenderLayer.CUTOUT_MIPPED);
-        RenderLayers.BLOCKS.put(VPBlocks.ALCHEMIST_TABLE_BLOCK.get(), BlockRenderLayer.CUTOUT_MIPPED);
-        RenderLayers.BLOCKS.put(VPBlocks.ORE_GRINDER_BLOCK.get(), BlockRenderLayer.CUTOUT_MIPPED);
+        ItemBlockRenderTypes.TYPE_BY_BLOCK.put(VPBlocks.OCEANOGRAPHER_TABLE_BLOCK.get(), ChunkSectionLayer.CUTOUT_MIPPED);
+        ItemBlockRenderTypes.TYPE_BY_BLOCK.put(VPBlocks.ALCHEMIST_TABLE_BLOCK.get(), ChunkSectionLayer.CUTOUT_MIPPED);
+        ItemBlockRenderTypes.TYPE_BY_BLOCK.put(VPBlocks.ORE_GRINDER_BLOCK.get(), ChunkSectionLayer.CUTOUT_MIPPED);
     }
 }

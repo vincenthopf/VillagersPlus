@@ -2,28 +2,27 @@ package com.lion.villagersplus.init;
 
 import com.lion.villagersplus.VillagersPlus;
 import com.lion.villagersplus.platform.RegistryHelper;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-
 import java.util.function.Supplier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 
 public class VPItems {
 
     /**
      * Items need their RegistryKey in the settings since 1.21.2, same reason as in VPBlocks.
      */
-    private static Item.Settings settings(String name) {
-        return new Item.Settings()
-                .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(VillagersPlus.MOD_ID, name)));
+    private static Item.Properties settings(String name) {
+        return new Item.Properties()
+                .setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(VillagersPlus.MOD_ID, name)));
     }
 
     /// A BlockItem takes its translation key from its settings, not from its block. Without this the
     /// items read untranslated next to the existing `block.villagersplus.*` entries.
-    private static Item.Settings blockItemSettings(String name) {
-        return settings(name).useBlockPrefixedTranslationKey();
+    private static Item.Properties blockItemSettings(String name) {
+        return settings(name).useBlockDescriptionPrefix();
     }
 
     public static final Supplier<Item> ALCHEMIST_TABLE_BLOCK = RegistryHelper.registerItem("alchemist_table", () -> new BlockItem(VPBlocks.ALCHEMIST_TABLE_BLOCK.get(), blockItemSettings("alchemist_table")));

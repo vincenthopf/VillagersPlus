@@ -1,20 +1,19 @@
 package com.lion.villagersplus.platform;
 
-import net.minecraft.structure.processor.StructureProcessorType;
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.particle.SimpleParticleType;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.world.poi.PointOfInterestType;
-
 import java.util.function.Supplier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
 public class RegistryHelper {
 
@@ -26,7 +25,7 @@ public class RegistryHelper {
         return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerBlockEntity(name, blockEntity);
     }
 
-    public static void registerItemGroup(RegistryKey<ItemGroup> registryKey, String name, String literalName, Supplier<Item> item) {
+    public static void registerItemGroup(ResourceKey<CreativeModeTab> registryKey, String name, String literalName, Supplier<Item> item) {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerItemGroup(registryKey, name, literalName, item);
     }
 
@@ -34,7 +33,7 @@ public class RegistryHelper {
         return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerItem(name, item);
     }
 
-    public static void addToItemGroup(RegistryKey<ItemGroup> itemGroup, Item item) {
+    public static void addToItemGroup(ResourceKey<CreativeModeTab> itemGroup, Item item) {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.addToItemGroup(itemGroup, item);
     }
 
@@ -42,19 +41,19 @@ public class RegistryHelper {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerParticleType(name, particleType);
     }
 
-    public static void registerRenderType(RenderLayer type, Block... blocks) {
+    public static void registerRenderType(RenderType type, Block... blocks) {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerRenderType(type, blocks);
     }
 
-    public static void registerScreenHandlerType(String name, ScreenHandlerType<?> screenHandlerType) {
+    public static void registerScreenHandlerType(String name, MenuType<?> screenHandlerType) {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerScreenHandlerType(name, screenHandlerType);
     }
 
-    public static <T extends BlockEntity> void registerBlockEntityRenderer(Supplier<BlockEntityType<T>> type, BlockEntityRendererFactory<T> renderProvider) {
+    public static <T extends BlockEntity> void registerBlockEntityRenderer(Supplier<BlockEntityType<T>> type, BlockEntityRendererProvider<T> renderProvider) {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerBlockEntityRenderer(type, renderProvider);
     }
 
-    public static <T extends PointOfInterestType> Supplier<T> registerPointOfInterestType(String name, Supplier<T> pointOfInterestType) {
+    public static <T extends PoiType> Supplier<T> registerPointOfInterestType(String name, Supplier<T> pointOfInterestType) {
         return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerPointOfInterestType(name, pointOfInterestType);
     }
 

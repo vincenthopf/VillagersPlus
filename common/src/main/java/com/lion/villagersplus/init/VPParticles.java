@@ -1,7 +1,7 @@
 package com.lion.villagersplus.init;
 
 import com.lion.villagersplus.platform.RegistryHelper;
-import net.minecraft.particle.SimpleParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 
 
 public class VPParticles {

@@ -1,11 +1,11 @@
 package com.lion.villagersplus.mixin;
 
 import com.lion.villagersplus.util.VanillaMineshaftAttachment;
-import net.minecraft.structure.StructurePiece;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ProtoChunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(StructurePiece.class)
 public class StructurePieceMixin {
 
-    @Inject(method = "intersectsChunk", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isCloseToChunk", at = @At("HEAD"), cancellable = true)
     private void villagersplus$skipTerrainAdaptation(ChunkPos pos, int offset, CallbackInfoReturnable<Boolean> cir) {
         if (VanillaMineshaftAttachment.isBeardExempt((StructurePiece) (Object) this)) {
             cir.setReturnValue(false);
@@ -36,18 +36,18 @@ public class StructurePieceMixin {
     ///
     /// `addBlock` marks fences, torches, ladders and rails, most of a corridor, for post-processing,
     /// and only a chunk still in the generation pipeline can hold that list; on a finished chunk the
-    /// base [Chunk] does nothing but log. Hanging off a *village* start, this mineshaft reaches
+    /// base [ChunkAccess] does nothing but log. Hanging off a *village* start, this mineshaft reaches
     /// chunks that are already plain `WorldChunk`s: one warning per fence post.
     ///
     /// Skipping the call there is the outcome vanilla produces anyway, since the mark is discarded
     /// and the block placed regardless. Chunks still in the pipeline pass through untouched.
     @Redirect(
-            method = "addBlock",
+            method = "placeBlock",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/Chunk;markBlockForPostProcessing(Lnet/minecraft/util/math/BlockPos;)V"))
-    private void villagersplus$onlyPostProcessUnfinishedChunks(Chunk chunk, BlockPos pos) {
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V"))
+    private void villagersplus$onlyPostProcessUnfinishedChunks(ChunkAccess chunk, BlockPos pos) {
         if (chunk instanceof ProtoChunk) {
-            chunk.markBlockForPostProcessing(pos);
+            chunk.markPosForPostprocessing(pos);
         }
     }
 }

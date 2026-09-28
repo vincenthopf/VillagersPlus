@@ -3,12 +3,12 @@ package com.lion.villagersplus.util;
 import com.lion.villagersplus.VillagersPlus;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.SharedConstants;
-import net.minecraft.datafixer.Schemas;
-import net.minecraft.datafixer.TypeReferences;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.util.datafix.fixes.References;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,16 +45,16 @@ public final class LegacyItemStacks {
     /// `fromVersion` is the chunk's own `DataVersion`, so it is exactly what these entries were last
     /// written by, and -1 means the file carried none. The guard is the same one vanilla applies to
     /// the chunk a moment later, so a current world walks straight back out.
-    public static void migrateChunk(NbtCompound chunkNbt, int fromVersion) {
-        int current = SharedConstants.getGameVersion().dataVersion().id();
+    public static void migrateChunk(CompoundTag chunkNbt, int fromVersion) {
+        int current = SharedConstants.getCurrentVersion().dataVersion().version();
         if (fromVersion <= 0 || fromVersion >= current) {
             return;
         }
 
-        NbtList blockEntities = chunkNbt.getListOrEmpty(BLOCK_ENTITIES);
+        ListTag blockEntities = chunkNbt.getListOrEmpty(BLOCK_ENTITIES);
         for (int i = 0; i < blockEntities.size(); i++) {
-            NbtCompound blockEntity = blockEntities.getCompoundOrEmpty(i);
-            String id = blockEntity.getString(ID, "");
+            CompoundTag blockEntity = blockEntities.getCompoundOrEmpty(i);
+            String id = blockEntity.getStringOr(ID, "");
             if (id.startsWith(VillagersPlus.MOD_ID + ":")) {
                 announce(fromVersion, current);
                 migrateInventory(blockEntity, id, fromVersion, current);
@@ -69,17 +69,17 @@ public final class LegacyItemStacks {
         }
     }
 
-    private static void migrateInventory(NbtCompound blockEntity, String id, int from, int to) {
-        NbtList items = blockEntity.getListOrEmpty(ITEMS);
+    private static void migrateInventory(CompoundTag blockEntity, String id, int from, int to) {
+        ListTag items = blockEntity.getListOrEmpty(ITEMS);
         StringBuilder changed = new StringBuilder();
 
         for (int i = 0; i < items.size(); i++) {
-            NbtCompound before = items.getCompoundOrEmpty(i);
+            CompoundTag before = items.getCompoundOrEmpty(i);
             if (before.isEmpty()) {
                 continue;
             }
 
-            NbtCompound after;
+            CompoundTag after;
             try {
                 after = update(before, from, to);
             } catch (RuntimeException e) {
@@ -99,24 +99,24 @@ public final class LegacyItemStacks {
 
         if (!changed.isEmpty()) {
             LOGGER.info("{} at {},{},{}: {}", id,
-                    blockEntity.getInt("x", 0), blockEntity.getInt("y", 0), blockEntity.getInt("z", 0), changed);
+                    blockEntity.getIntOr("x", 0), blockEntity.getIntOr("y", 0), blockEntity.getIntOr("z", 0), changed);
         }
     }
 
-    private static NbtCompound update(NbtCompound entry, int from, int to) {
+    private static CompoundTag update(CompoundTag entry, int from, int to) {
         // The slot is the inventory's own bookkeeping and means nothing to an item fixer, so it is
         // lifted out and put back afterwards rather than fed through.
-        NbtElement slot = entry.get(SLOT);
-        NbtCompound stack = entry.copy();
+        Tag slot = entry.get(SLOT);
+        CompoundTag stack = entry.copy();
         stack.remove(SLOT);
 
-        Dynamic<NbtElement> fixed = Schemas.getFixer().update(
-                TypeReferences.ITEM_STACK,
+        Dynamic<Tag> fixed = DataFixers.getDataFixer().update(
+                References.ITEM_STACK,
                 new Dynamic<>(NbtOps.INSTANCE, stack),
                 from,
                 to);
 
-        NbtCompound result = (NbtCompound) fixed.getValue();
+        CompoundTag result = (CompoundTag) fixed.getValue();
         if (slot != null) {
             result.put(SLOT, slot);
         }
@@ -125,23 +125,23 @@ public final class LegacyItemStacks {
 
     /// One slot as `slot 3 minecraft:diamond_pickaxe 1 -> 1 [minecraft:enchantments]`, so a test run
     /// shows what the fixer made of an entry rather than only that it touched one.
-    private static String describe(NbtCompound before, NbtCompound after) {
+    private static String describe(CompoundTag before, CompoundTag after) {
         StringBuilder line = new StringBuilder()
-                .append("slot ").append(before.getInt(SLOT, -1))
-                .append(' ').append(after.getString(ID, before.getString(ID, "?")))
+                .append("slot ").append(before.getIntOr(SLOT, -1))
+                .append(' ').append(after.getStringOr(ID, before.getStringOr(ID, "?")))
                 .append(' ').append(count(before)).append(" -> ").append(count(after));
 
-        NbtCompound components = after.getCompoundOrEmpty("components");
+        CompoundTag components = after.getCompoundOrEmpty("components");
         if (!components.isEmpty()) {
-            line.append(' ').append(components.getKeys());
+            line.append(' ').append(components.keySet());
         }
         return line.toString();
     }
 
     /// `Count` before 1.20.5, `count` after. A missing field reads as one, which is what the codec
     /// would have defaulted to and exactly the loss being repaired here.
-    private static int count(NbtCompound stack) {
-        int componentised = stack.getInt("count", -1);
-        return componentised >= 0 ? componentised : stack.getInt("Count", 1);
+    private static int count(CompoundTag stack) {
+        int componentised = stack.getIntOr("count", -1);
+        return componentised >= 0 ? componentised : stack.getIntOr("Count", 1);
     }
 }
