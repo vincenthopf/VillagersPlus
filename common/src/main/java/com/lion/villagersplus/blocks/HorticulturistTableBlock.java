@@ -1,6 +1,7 @@
 package com.lion.villagersplus.blocks;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.util.Prediction;
+import net.minecraft.core.Direction;
 import com.lion.villagersplus.blockentities.HorticulturistTableBlockEntity;
 import com.lion.villagersplus.init.VPTags;
 import net.minecraft.core.BlockPos;
@@ -42,12 +43,7 @@ public class HorticulturistTableBlock extends WorkstationBlock {
     private static final int MAX_LIGHT = 15;
 
     /** BlockWithEntity requires a codec as of 1.20.5; this block has no state beyond its settings. */
-    public static final MapCodec<HorticulturistTableBlock> CODEC = simpleCodec(HorticulturistTableBlock::new);
 
-    @Override
-    protected MapCodec<? extends HorticulturistTableBlock> codec() {
-        return CODEC;
-    }
 
     public HorticulturistTableBlock(Properties settings) {
         super(settings);
@@ -137,7 +133,7 @@ public class HorticulturistTableBlock extends WorkstationBlock {
                             itemStack.shrink(1);
                         }
                     } else {
-                        itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+                        itemStack.hurtAndBreak(1, player, hand);
                     }
                     world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
                 }
@@ -156,7 +152,7 @@ public class HorticulturistTableBlock extends WorkstationBlock {
                     world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
                 }
 
-                if (world.isClientSide) {
+                if (world.isClientSide()) {
                     world.playSound(null, pos, SoundEvents.CROP_PLANTED, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
 
@@ -169,7 +165,7 @@ public class HorticulturistTableBlock extends WorkstationBlock {
                     world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
                 }
 
-                if (world.isClientSide) {
+                if (world.isClientSide()) {
                     world.playSound(null, pos, SoundEvents.CROP_PLANTED, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
                 return InteractionResult.SUCCESS;
@@ -186,13 +182,13 @@ public class HorticulturistTableBlock extends WorkstationBlock {
                 if (removed.isEmpty()) {
                     return InteractionResult.TRY_WITH_EMPTY_HAND;
                 }
-                player.getInventory().placeItemBackInInventory(removed);
+                player.getInventory().placeItemBackInInventory(removed, Prediction.SERVER_ONLY);
                 int remaining = tall ? 0 : state.getValue(FLOWERS) - 1;
                 world.setBlock(pos, state.setValue(FLOWERS, remaining).setValue(IS_TALL_FLOWER, false).setValue(LIGHT, lightFor(blockEntity)), 3);
                 world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
             }
 
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 world.playSound(null, pos, SoundEvents.CROP_PLANTED, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
             return InteractionResult.SUCCESS;
@@ -219,7 +215,7 @@ public class HorticulturistTableBlock extends WorkstationBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
         return state.getValue(FLOWERS);
     }
 

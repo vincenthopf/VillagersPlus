@@ -1,16 +1,16 @@
 package com.lion.villagersplus.client.screen;
 
 import com.lion.villagersplus.VillagersPlus;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
 public class AlchemistTableScreen extends AbstractContainerScreen<AlchemistTableScreenHandler> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(VillagersPlus.MOD_ID, "textures/gui/container/alchemist_table.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(VillagersPlus.MOD_ID, "textures/gui/container/alchemist_table.png");
     private static final int[] BUBBLE_PROGRESS = new int[]{29, 24, 20, 16, 11, 6, 0};
 
     public AlchemistTableScreen(AlchemistTableScreenHandler handler, Inventory inventory, Component title) {
@@ -22,13 +22,9 @@ public class AlchemistTableScreen extends AbstractContainerScreen<AlchemistTable
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
     }
 
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
-        super.render(context, mouseX, mouseY, delta);
-        this.renderTooltip(context, mouseX, mouseY);
-    }
-
-    protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
+    @Override
+    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractBackground(context, mouseX, mouseY, delta);
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i, j, (float) (0), (float) (0), this.imageWidth, this.imageHeight, 256, 256);

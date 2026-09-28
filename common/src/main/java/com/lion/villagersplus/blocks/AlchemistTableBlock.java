@@ -1,6 +1,5 @@
 package com.lion.villagersplus.blocks;
 
-import com.mojang.serialization.MapCodec;
 import com.lion.villagersplus.blockentities.AlchemistTableBlockEntity;
 import com.lion.villagersplus.init.VPBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -45,12 +44,7 @@ public class AlchemistTableBlock extends WorkstationBlock {
     // (see its readComponents), so doing it here would only duplicate vanilla.
 
     /** BlockWithEntity requires a codec as of 1.20.5; this block has no state beyond its settings. */
-    public static final MapCodec<AlchemistTableBlock> CODEC = simpleCodec(AlchemistTableBlock::new);
 
-    @Override
-    protected MapCodec<? extends AlchemistTableBlock> codec() {
-        return CODEC;
-    }
 
     public AlchemistTableBlock(BlockBehaviour.Properties settings) {
         super(settings);
@@ -74,12 +68,12 @@ public class AlchemistTableBlock extends WorkstationBlock {
 
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return world.isClientSide ? null : createTickerHelper(type, VPBlockEntities.ALCHEMIST_TABLE_BLOCK_ENTITY.get(), AlchemistTableBlockEntity::tick);
+        return world.isClientSide() ? null : createTickerHelper(type, VPBlockEntities.ALCHEMIST_TABLE_BLOCK_ENTITY.get(), AlchemistTableBlockEntity::tick);
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
-        if (world.isClientSide) {
+        if (world.isClientSide()) {
             return InteractionResult.SUCCESS;
         } else {
             BlockEntity blockEntity = world.getBlockEntity(pos);
@@ -147,7 +141,7 @@ public class AlchemistTableBlock extends WorkstationBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
         return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(world.getBlockEntity(pos));
     }
 

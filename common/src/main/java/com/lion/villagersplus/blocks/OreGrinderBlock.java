@@ -1,6 +1,5 @@
 package com.lion.villagersplus.blocks;
 
-import com.mojang.serialization.MapCodec;
 import com.lion.villagersplus.blockentities.OreGrinderBlockEntity;
 import com.lion.villagersplus.init.VPBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -41,12 +40,7 @@ public class OreGrinderBlock extends WorkstationBlock {
     // (see its readComponents), so doing it here would only duplicate vanilla.
 
     /** BlockWithEntity requires a codec as of 1.20.5; this block has no state beyond its settings. */
-    public static final MapCodec<OreGrinderBlock> CODEC = simpleCodec(OreGrinderBlock::new);
 
-    @Override
-    protected MapCodec<? extends OreGrinderBlock> codec() {
-        return CODEC;
-    }
 
     public OreGrinderBlock(BlockBehaviour.Properties settings) {
         super(settings);
@@ -60,12 +54,12 @@ public class OreGrinderBlock extends WorkstationBlock {
 
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return world.isClientSide ? null : createTickerHelper(type, VPBlockEntities.ORE_GRINDER_BLOCK_ENTITY.get(), OreGrinderBlockEntity::tick);
+        return world.isClientSide() ? null : createTickerHelper(type, VPBlockEntities.ORE_GRINDER_BLOCK_ENTITY.get(), OreGrinderBlockEntity::tick);
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
-        if (world.isClientSide) {
+        if (world.isClientSide()) {
             return InteractionResult.SUCCESS;
         } else {
             BlockEntity blockEntity = world.getBlockEntity(pos);
@@ -112,7 +106,7 @@ public class OreGrinderBlock extends WorkstationBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
         return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(world.getBlockEntity(pos));
     }
 

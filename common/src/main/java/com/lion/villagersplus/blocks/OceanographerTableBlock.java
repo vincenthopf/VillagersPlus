@@ -1,9 +1,9 @@
 package com.lion.villagersplus.blocks;
 
+import com.lion.villagersplus.util.PlayerSounds;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
-import com.mojang.serialization.MapCodec;
 import com.lion.villagersplus.blockentities.OceanographerTableBlockEntity;
 import com.lion.villagersplus.init.VPBlockEntities;
 import com.lion.villagersplus.init.VPItems;
@@ -60,12 +60,7 @@ public class OceanographerTableBlock extends WorkstationBlock {
     public static final BooleanProperty STANDALONE;
 
     /** BlockWithEntity requires a codec as of 1.20.5; this block has no state beyond its settings. */
-    public static final MapCodec<OceanographerTableBlock> CODEC = simpleCodec(OceanographerTableBlock::new);
 
-    @Override
-    protected MapCodec<? extends OceanographerTableBlock> codec() {
-        return CODEC;
-    }
 
     public OceanographerTableBlock(Properties settings) {
         super(settings);
@@ -153,7 +148,7 @@ public class OceanographerTableBlock extends WorkstationBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
         // Only the client needs to tick: it drives the display fish's swim animation.
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             return null;
         }
         return createTickerHelper(type, VPBlockEntities.OCEANOGRAPHER_TABLE_BLOCK_ENTITY.get(),
@@ -207,7 +202,7 @@ public class OceanographerTableBlock extends WorkstationBlock {
                                     itemStack.shrink(1);
                                 }
                             } else {
-                                itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+                                itemStack.hurtAndBreak(1, player, hand);
                             }
                             world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
                         }
@@ -239,7 +234,7 @@ public class OceanographerTableBlock extends WorkstationBlock {
                         world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
                     }
 
-                    if (world.isClientSide) {
+                    if (world.isClientSide()) {
                         world.playSound(null, pos, SoundEvents.CORAL_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
                     }
 
@@ -259,7 +254,7 @@ public class OceanographerTableBlock extends WorkstationBlock {
                         world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
                     }
 
-                    if (world.isClientSide) player.playNotifySound(SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    if (world.isClientSide()) PlayerSounds.notify(player, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
 
                     return InteractionResult.SUCCESS;
                     // Either bucket works: the tank holds its own water, so the empty one handed
@@ -276,7 +271,7 @@ public class OceanographerTableBlock extends WorkstationBlock {
                             world.setBlock(pos, state.setValue(FISH, 0), 3);
                             world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
                         } else {
-                            player.playNotifySound(SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
+                            PlayerSounds.notify(player, SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
                         }
 
                         return InteractionResult.SUCCESS;
@@ -351,7 +346,7 @@ public class OceanographerTableBlock extends WorkstationBlock {
     public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean notify) {
         // Connecting upward removes the upper block's floor - existing corals there would
         // float in the water, so pop them out.
-        if (!world.isClientSide && state.getValue(UP)) {
+        if (!world.isClientSide() && state.getValue(UP)) {
             BlockPos above = pos.above();
             BlockState aboveState = world.getBlockState(above);
             if (aboveState.is(this) && aboveState.getValue(CORALS) > 0
@@ -391,7 +386,7 @@ public class OceanographerTableBlock extends WorkstationBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
         return (Integer)state.getValue(FISH) + state.getValue(CORALS);
     }
 

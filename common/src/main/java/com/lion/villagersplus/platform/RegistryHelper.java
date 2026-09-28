@@ -1,19 +1,21 @@
 package com.lion.villagersplus.platform;
 
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import java.util.function.Supplier;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import com.mojang.serialization.MapCodec;
 
 public class RegistryHelper {
 
@@ -49,7 +51,7 @@ public class RegistryHelper {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerScreenHandlerType(name, screenHandlerType);
     }
 
-    public static <T extends BlockEntity> void registerBlockEntityRenderer(Supplier<BlockEntityType<T>> type, BlockEntityRendererProvider<T> renderProvider) {
+    public static <T extends BlockEntity, S extends BlockEntityRenderState> void registerBlockEntityRenderer(Supplier<BlockEntityType<T>> type, BlockEntityRendererProvider<T, S> renderProvider) {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerBlockEntityRenderer(type, renderProvider);
     }
 
@@ -61,7 +63,7 @@ public class RegistryHelper {
         return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerVillagerProfession(name, villagerProfession);
     }
 
-    public static void registerStructureProcessorType(String name, StructureProcessorType<?> structureProcessorType) {
+    public static void registerStructureProcessorType(String name, MapCodec<? extends StructureProcessor> structureProcessorType) {
         com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerStructureProcessorType(name, structureProcessorType);
     }
 }

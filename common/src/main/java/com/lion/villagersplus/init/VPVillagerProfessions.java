@@ -1,5 +1,6 @@
 package com.lion.villagersplus.init;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import com.lion.villagersplus.VillagersPlus;
 import com.google.common.collect.ImmutableSet;
 import com.lion.villagersplus.init.VPPointOfInterestTypes;
@@ -10,7 +11,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 
 public class VPVillagerProfessions {
 
@@ -42,35 +43,35 @@ public class VPVillagerProfessions {
                 Component.translatable("entity.minecraft.villager.horticulturist"),
                 HORTICULTURIST_PREDICATE,
                 HORTICULTURIST_PREDICATE,
-                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_FARMER
+                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_FARMER, Int2ObjectMaps.emptyMap()
         ));
 
         OCCULTIST = RegistryHelper.registerVillagerProfession("occultist", () -> new VillagerProfession(
                 Component.translatable("entity.minecraft.villager.occultist"),
                 holder -> holder.value().equals(VPPointOfInterestTypes.OCCULTIST_POI.get()),
                 holder -> holder.value().equals(VPPointOfInterestTypes.OCCULTIST_POI.get()),
-                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_CLERIC
+                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_CLERIC, Int2ObjectMaps.emptyMap()
         ));
 
         OCEANOGRAPHER = RegistryHelper.registerVillagerProfession("oceanographer", () -> new VillagerProfession(
                 Component.translatable("entity.minecraft.villager.oceanographer"),
                 holder -> holder.value().equals(VPPointOfInterestTypes.OCEANOGRAPHER_POI.get()),
                 holder -> holder.value().equals(VPPointOfInterestTypes.OCEANOGRAPHER_POI.get()),
-                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.BUCKET_FILL
+                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.BUCKET_FILL, Int2ObjectMaps.emptyMap()
         ));
 
         ALCHEMIST = RegistryHelper.registerVillagerProfession("alchemist", () -> new VillagerProfession(
                 Component.translatable("entity.minecraft.villager.alchemist"),
                 holder -> holder.value().equals(VPPointOfInterestTypes.ALCHEMIST_POI.get()),
                 holder -> holder.value().equals(VPPointOfInterestTypes.ALCHEMIST_POI.get()),
-                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_CLERIC
+                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_CLERIC, Int2ObjectMaps.emptyMap()
         ));
 
         MINER = RegistryHelper.registerVillagerProfession("miner", () -> new VillagerProfession(
                 Component.translatable("entity.minecraft.villager.miner"),
                 holder -> holder.value().equals(VPPointOfInterestTypes.MINER_POI.get()),
                 holder -> holder.value().equals(VPPointOfInterestTypes.MINER_POI.get()),
-                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_TOOLSMITH
+                ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_TOOLSMITH, Int2ObjectMaps.emptyMap()
         ));
     }
 }

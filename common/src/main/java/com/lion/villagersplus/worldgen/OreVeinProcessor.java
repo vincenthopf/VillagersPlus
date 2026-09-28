@@ -1,6 +1,5 @@
 package com.lion.villagersplus.worldgen;
 
-import com.lion.villagersplus.init.VPStructures;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -14,7 +13,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * random and shift every later decision that draws from it, so the same village would come out
  * differently depending on whether this processor ran.
  */
-public class OreVeinProcessor extends StructureProcessor {
+public class OreVeinProcessor implements StructureProcessor {
 
     // StructureProcessorType.codec() returns a MapCodec since 1.20.5, so build one directly.
     public static final MapCodec<OreVeinProcessor> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -50,7 +48,7 @@ public class OreVeinProcessor extends StructureProcessor {
     @Override
     @Nullable
     public StructureTemplate.StructureBlockInfo processBlock(LevelReader world, BlockPos pos, BlockPos pivot,
-                                                       StructureTemplate.StructureBlockInfo originalBlockInfo,
+                                                       BlockPos templateRelativePos,
                                                        StructureTemplate.StructureBlockInfo currentBlockInfo,
                                                        StructurePlaceSettings data) {
         if (!currentBlockInfo.state().is(this.target)) {
@@ -66,7 +64,7 @@ public class OreVeinProcessor extends StructureProcessor {
     }
 
     @Override
-    protected StructureProcessorType<?> getType() {
-        return VPStructures.ORE_VEIN;
+    public MapCodec<OreVeinProcessor> codec() {
+        return CODEC;
     }
 }

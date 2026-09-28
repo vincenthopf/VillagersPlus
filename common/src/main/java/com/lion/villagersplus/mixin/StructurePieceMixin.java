@@ -44,10 +44,10 @@ public class StructurePieceMixin {
     @Redirect(
             method = "placeBlock",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V"))
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;markPosForPostProcessing(Lnet/minecraft/core/BlockPos;)V"))
     private void villagersplus$onlyPostProcessUnfinishedChunks(ChunkAccess chunk, BlockPos pos) {
         if (chunk instanceof ProtoChunk) {
-            chunk.markPosForPostprocessing(pos);
+            chunk.markPosForPostProcessing(pos);
         }
     }
 }

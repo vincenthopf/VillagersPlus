@@ -5,7 +5,7 @@ import com.lion.villagersplus.platform.RegistryHelper;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 
@@ -16,7 +16,7 @@ public class VPItems {
      */
     private static Item.Properties settings(String name) {
         return new Item.Properties()
-                .setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(VillagersPlus.MOD_ID, name)));
+                .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(VillagersPlus.MOD_ID, name)));
     }
 
     /// A BlockItem takes its translation key from its settings, not from its block. Without this the

@@ -7,7 +7,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
@@ -17,14 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StructurePoolAddition {
-    private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.fromNamespaceAndPath("minecraft", "empty"));
+    private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, Identifier.fromNamespaceAndPath("minecraft", "empty"));
     /** Turns the miner house's chiseled stone into ores - see {@link com.lion.villagersplus.worldgen.OreVeinProcessor}. */
-    private static final ResourceKey<StructureProcessorList> MINER_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.fromNamespaceAndPath(VillagersPlus.MOD_ID, "miner_ores"));
-    private static final ResourceLocation plainsPoolLocation = ResourceLocation.parse("minecraft:village/plains/houses");
-    private static final ResourceLocation desertPoolLocation = ResourceLocation.parse("minecraft:village/desert/houses");
-    private static final ResourceLocation savannaPoolLocation = ResourceLocation.parse("minecraft:village/savanna/houses");
-    private static final ResourceLocation snowyPoolLocation = ResourceLocation.parse("minecraft:village/snowy/houses");
-    private static final ResourceLocation taigaPoolLocation = ResourceLocation.parse("minecraft:village/taiga/houses");
+    private static final ResourceKey<StructureProcessorList> MINER_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, Identifier.fromNamespaceAndPath(VillagersPlus.MOD_ID, "miner_ores"));
+    private static final Identifier plainsPoolLocation = Identifier.parse("minecraft:village/plains/houses");
+    private static final Identifier desertPoolLocation = Identifier.parse("minecraft:village/desert/houses");
+    private static final Identifier savannaPoolLocation = Identifier.parse("minecraft:village/savanna/houses");
+    private static final Identifier snowyPoolLocation = Identifier.parse("minecraft:village/snowy/houses");
+    private static final Identifier taigaPoolLocation = Identifier.parse("minecraft:village/taiga/houses");
 
     public static void registerJigsaws(MinecraftServer server) {
         Registry<StructureTemplatePool> templatePoolRegistry = server.registryAccess().lookupOrThrow(Registries.TEMPLATE_POOL);
@@ -60,7 +60,7 @@ public class StructurePoolAddition {
         addBuildingToPool(templatePoolRegistry, processorListRegistry, desertPoolLocation, "villagersplus:village/desert/desert_occultist", VillagersPlus.CONFIG.desert_occultist_weight);
     }
 
-    public static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry, Registry<StructureProcessorList> processorListRegistry, ResourceLocation poolRL, String nbtPieceRL, int weight) {
+    public static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry, Registry<StructureProcessorList> processorListRegistry, Identifier poolRL, String nbtPieceRL, int weight) {
         addBuildingToPool(templatePoolRegistry, poolRL, nbtPieceRL, weight, processorListRegistry.getOrThrow(EMPTY_PROCESSOR_LIST_KEY));
     }
 
@@ -71,12 +71,12 @@ public class StructurePoolAddition {
      */
     private static Holder<StructureProcessorList> processorList(Registry<StructureProcessorList> registry, ResourceKey<StructureProcessorList> key) {
         return registry.get(key).map(entry -> (Holder<StructureProcessorList>) entry).orElseGet(() -> {
-            VillagersPlus.LOGGER.warn("Processor list {} is missing, placing that building unprocessed", key.location());
+            VillagersPlus.LOGGER.warn("Processor list {} is missing, placing that building unprocessed", key.identifier());
             return registry.getOrThrow(EMPTY_PROCESSOR_LIST_KEY);
         });
     }
 
-    public static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry, ResourceLocation poolRL, String nbtPieceRL, int weight, Holder<StructureProcessorList> processorList) {
+    public static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry, Identifier poolRL, String nbtPieceRL, int weight, Holder<StructureProcessorList> processorList) {
         StructureTemplatePool pool = templatePoolRegistry.getValue(poolRL);
         if (pool == null) return;
 

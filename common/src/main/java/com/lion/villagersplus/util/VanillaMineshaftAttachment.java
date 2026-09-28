@@ -15,7 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.JigsawBlock;
@@ -65,23 +65,23 @@ public final class VanillaMineshaftAttachment {
     private static final int MAX_SEGMENTS = 16;
 
     /** The shaft templates belonging to one miner's house variant. */
-    private record Shaft(ResourceLocation segment, ResourceLocation end) { }
+    private record Shaft(Identifier segment, Identifier end) { }
 
-    private static final Map<ResourceLocation, Shaft> SHAFTS = Map.of(
+    private static final Map<Identifier, Shaft> SHAFTS = Map.of(
             id("village/plains/plains_miner"), new Shaft(id("mine/mine_pool/plains_mineshaft"), id("mine/mine_pool/plains_mineshaft_end")),
             id("village/savanna/savanna_miner"), new Shaft(id("mine/mine_pool/savanna_mineshaft"), id("mine/mine_pool/savanna_mineshaft_end")),
             id("village/taiga/taiga_miner"), new Shaft(id("mine/mine_pool/taiga_mineshaft"), id("mine/mine_pool/taiga_mineshaft_end")));
 
     /** Every template this class places itself, for {@link #isBeardExempt}. */
-    private static final Set<ResourceLocation> SHAFT_TEMPLATES = SHAFTS.values().stream()
+    private static final Set<Identifier> SHAFT_TEMPLATES = SHAFTS.values().stream()
             .flatMap(shaft -> Stream.of(shaft.segment(), shaft.end()))
             .collect(Collectors.toUnmodifiableSet());
 
     private VanillaMineshaftAttachment() {
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(VillagersPlus.MOD_ID, path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(VillagersPlus.MOD_ID, path);
     }
 
     /**
@@ -283,21 +283,20 @@ public final class VanillaMineshaftAttachment {
         // getStructureBlockInfos returns JigsawBlockInfo since 1.21.6, which parses the jigsaw NBT
         // for us - the name is a typed Identifier now instead of a raw string dug out of the tag.
         for (StructureTemplate.JigsawBlockInfo jigsaw : element.getShuffledJigsawBlocks(templates, pos, rotation, random)) {
-            StructureTemplate.StructureBlockInfo info = jigsaw.info();
             if (jigsaw.name() == null || !name.equals(jigsaw.name().toString())) {
                 continue;
             }
-            if (JigsawBlock.getFrontFacing(info.state()) == facing) {
-                return info.pos();
+            if (JigsawBlock.getFrontFacing(jigsaw.state()) == facing) {
+                return jigsaw.pos();
             }
         }
         return null;
     }
 
-    private static SinglePoolElement element(Structure.GenerationContext context, ResourceLocation location) {
+    private static SinglePoolElement element(Structure.GenerationContext context, Identifier location) {
         Holder<StructureProcessorList> processors = context.registryAccess()
                 .lookupOrThrow(Registries.PROCESSOR_LIST)
-                .getOrThrow(ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.fromNamespaceAndPath("minecraft", "empty")));
+                .getOrThrow(ResourceKey.create(Registries.PROCESSOR_LIST, Identifier.fromNamespaceAndPath("minecraft", "empty")));
 
         return StructurePoolElement.single(location.toString(), processors).apply(StructureTemplatePool.Projection.RIGID);
     }
@@ -319,7 +318,7 @@ public final class VanillaMineshaftAttachment {
         return found;
     }
 
-    private static Optional<ResourceLocation> locationOf(PoolElementStructurePiece piece) {
+    private static Optional<Identifier> locationOf(PoolElementStructurePiece piece) {
         if (piece.getElement() instanceof SinglePoolElement single) {
             return ((SinglePoolElementAccessor) single).getLocation().left();
         }

@@ -10,7 +10,7 @@ import com.lion.villagersplus.platform.RegistryHelper;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
@@ -23,7 +23,7 @@ public class VPBlocks {
      */
     private static BlockBehaviour.Properties settings(String name) {
         return BlockBehaviour.Properties.of()
-                .setId(ResourceKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(VillagersPlus.MOD_ID, name)));
+                .setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(VillagersPlus.MOD_ID, name)));
     }
 
     public static final Supplier<Block> ALCHEMIST_TABLE_BLOCK = RegistryHelper.registerBlock("alchemist_table", () -> new AlchemistTableBlock(settings("alchemist_table").strength(0.5F).lightLevel((state) -> 1).noOcclusion()));

@@ -1,6 +1,6 @@
 package com.lion.villagersplus.blocks;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.core.Direction;
 import com.lion.villagersplus.VillagersPlus;
 import com.lion.villagersplus.blockentities.OccultistTableBlockEntity;
 import com.lion.villagersplus.init.VPParticles;
@@ -29,12 +29,7 @@ public class OccultistTableBlock extends WorkstationBlock {
     public static final IntegerProperty FILLING;
 
     /** BlockWithEntity requires a codec as of 1.20.5; this block has no state beyond its settings. */
-    public static final MapCodec<OccultistTableBlock> CODEC = simpleCodec(OccultistTableBlock::new);
 
-    @Override
-    protected MapCodec<? extends OccultistTableBlock> codec() {
-        return CODEC;
-    }
 
     public OccultistTableBlock(Properties settings) {
         super(settings);
@@ -56,12 +51,12 @@ public class OccultistTableBlock extends WorkstationBlock {
         if (world.getBlockEntity(pos) instanceof OccultistTableBlockEntity tile && !player.isCreative()) {
             tile.interact(world, player);
 
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 if (player.isShiftKeyDown()) {
-                    createParticleSpiral(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0D, 0.0D, 0.0D, 250, ParticleTypes.SOUL, world.random);
+                    createParticleSpiral(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0D, 0.0D, 0.0D, 250, ParticleTypes.SOUL, world.getRandom());
                     world.playSound(player, pos, SoundEvents.SOUL_ESCAPE.value(), SoundSource.BLOCKS, 3.0F, 0.0F);
                 } else {
-                    createParticleSpiral(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0D, 0.0D, 0.0D, 250, VPParticles.EXPERIENCE_PARTICLE, world.random);
+                    createParticleSpiral(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0D, 0.0D, 0.0D, 250, VPParticles.EXPERIENCE_PARTICLE, world.getRandom());
                     world.playSound(player, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 3.0F, 1.0F);
                 }
             }
@@ -138,7 +133,7 @@ public class OccultistTableBlock extends WorkstationBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
         return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(world.getBlockEntity(pos));
     }
 

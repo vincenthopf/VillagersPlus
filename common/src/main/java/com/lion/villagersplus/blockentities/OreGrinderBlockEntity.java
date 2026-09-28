@@ -1,5 +1,10 @@
 package com.lion.villagersplus.blockentities;
 
+import net.minecraft.world.level.storage.loot.providers.number.ints.ResolvableInt;
+import net.minecraft.world.item.component.CookingFuel;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.component.DataComponents;
 import com.lion.villagersplus.VillagersPlus;
 import com.lion.villagersplus.blocks.OreGrinderBlock;
 import com.lion.villagersplus.client.screen.OreGrinderScreenHandler;
@@ -234,15 +239,15 @@ public class OreGrinderBlockEntity extends BaseContainerBlockEntity implements W
             boolean canAccept = blockEntity.canAcceptOutput(result);
 
             if (!blockEntity.isBurning() && canAccept && hasFuel) {
-                blockEntity.burnTime = getFuelTime(world, fuelStack);
+                blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
                 blockEntity.fuelTime = blockEntity.burnTime;
                 if (blockEntity.isBurning()) {
                     dirty = true;
                     Item fuelItem = fuelStack.getItem();
                     fuelStack.shrink(1);
+                    ItemStackTemplate remainder = fuelItem.getCraftingRemainder();
                     if (fuelStack.isEmpty()) {
-                        // getRecipeRemainder returns an ItemStack now, empty instead of a null Item.
-                        blockEntity.inventory.set(FUEL_SLOT, fuelItem.getCraftingRemainder().copy());
+                        blockEntity.inventory.set(FUEL_SLOT, remainder != null ? remainder.create() : ItemStack.EMPTY);
                     }
                 }
             }
@@ -305,7 +310,7 @@ public class OreGrinderBlockEntity extends BaseContainerBlockEntity implements W
         int fortune = VillagersPlus.CONFIG.ore_grinder_fortune_enabled
                 ? enchantmentLevel(this.level, Enchantments.FORTUNE, pickaxeStack) : 0;
         if (fortune > 0) {
-            int bonus = this.level.random.nextInt(fortune + 2) - 1;
+            int bonus = this.level.getRandom().nextInt(fortune + 2) - 1;
             if (bonus < 0) {
                 bonus = 0;
             }
@@ -335,7 +340,7 @@ public class OreGrinderBlockEntity extends BaseContainerBlockEntity implements W
         int unbreaking = enchantmentLevel(this.level, Enchantments.UNBREAKING, pickaxe);
         int damage = Math.max(0, VillagersPlus.CONFIG.ore_grinder_pickaxe_damage);
         for (int i = 0; i < damage; i++) {
-            if (unbreaking > 0 && this.level.random.nextInt(unbreaking + 1) != 0) {
+            if (unbreaking > 0 && this.level.getRandom().nextInt(unbreaking + 1) != 0) {
                 continue;
             }
             pickaxe.setDamageValue(pickaxe.getDamageValue() + 1);
@@ -351,15 +356,15 @@ public class OreGrinderBlockEntity extends BaseContainerBlockEntity implements W
     // AbstractFurnaceBlockEntity.createFuelTimeMap() was removed in 1.21.2; burn times are a
     // per-world FuelRegistry now, because a datapack can change them. Both helpers therefore need a
     // world, and without one they answer conservatively rather than guessing a vanilla default.
-    private static int getFuelTime(@Nullable Level world, ItemStack fuel) {
-        if (world == null || fuel.isEmpty()) {
+    private int getFuelTime(ItemStack fuel) {
+        if (!(this.level instanceof ServerLevel serverLevel) || fuel.isEmpty()) {
             return 0;
         }
-        return world.fuelValues().burnDuration(fuel);
+        return ResolvableInt.getFromItem(fuel, DataComponents.COOKING_FUEL, CookingFuel::burnTime, this.getLootContext(serverLevel), 0);
     }
 
     public static boolean canUseAsFuel(@Nullable Level world, ItemStack stack) {
-        return world != null && world.fuelValues().isFuel(stack);
+        return world != null && stack.has(DataComponents.COOKING_FUEL);
     }
 
     /**
@@ -387,7 +392,7 @@ public class OreGrinderBlockEntity extends BaseContainerBlockEntity implements W
         // ReadView has no contains(); a missing key and a stored 0 are indistinguishable now. Both
         // mean "no burn in progress", so falling back to the fuel slot is right either way.
         int storedFuelTime = view.getShortOr("FuelTime", (short) 0);
-        this.fuelTime = storedFuelTime > 0 ? storedFuelTime : getFuelTime(this.level, this.inventory.get(FUEL_SLOT));
+        this.fuelTime = storedFuelTime > 0 ? storedFuelTime : getFuelTime(this.inventory.get(FUEL_SLOT));
     }
 
     @Override

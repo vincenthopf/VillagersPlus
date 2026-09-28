@@ -127,7 +127,7 @@ public class AlchemistTableBlockEntity extends BaseContainerBlockEntity implemen
             --blockEntity.brewTime;
             boolean bl3 = blockEntity.brewTime == 0;
             state = (BlockState) state.setValue(AlchemistTableBlock.IS_BREWING, true);
-            if (world.random.nextInt(8) == 0) {
+            if (world.getRandom().nextInt(8) == 0) {
                 world.playSound(null, pos, SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 0.5F, 0.5F);
             }
 
@@ -212,9 +212,9 @@ public class AlchemistTableBlockEntity extends BaseContainerBlockEntity implemen
         if (explosionChance == 0) {
             for (int i = 0; i < 3; ++i) {
                 if (!slots.get(i).isEmpty()) {
-                    ItemStack brewed = new ItemStack(world.random.nextBoolean() ? Items.SPLASH_POTION : Items.POTION);
+                    ItemStack brewed = new ItemStack(world.getRandom().nextBoolean() ? Items.SPLASH_POTION : Items.POTION);
                     brewed.set(DataComponents.POTION_CONTENTS,
-                            new PotionContents(potions.get(world.random.nextInt(potions.size()))));
+                            new PotionContents(potions.get(world.getRandom().nextInt(potions.size()))));
                     slots.set(i, brewed);
                 }
             }

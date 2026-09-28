@@ -5,11 +5,13 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.RandomSource;
 
-public class BubbleParticle extends TextureSheetParticle {
+public class BubbleParticle extends SingleQuadParticle {
 
-    BubbleParticle(ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
-        super(clientWorld, d, e, f);
+    BubbleParticle(ClientLevel clientWorld, double d, double e, double f, double g, double h, double i, TextureAtlasSprite sprite) {
+        super(clientWorld, d, e, f, sprite);
         this.gravity = -0.125F;
         this.friction = 0.85F;
         this.setSize(0.02F, 0.02F);
@@ -26,14 +28,15 @@ public class BubbleParticle extends TextureSheetParticle {
             this.remove();
         }
 
-        if (!this.removed && !this.level.getBlockState(new BlockPos(BlockPos.containing(this.x, this.y, this.z))).is(VPBlocks.OCEANOGRAPHER_TABLE_BLOCK.get())) {
+        if (!this.removed && !this.level.getBlockState(BlockPos.containing(this.x, this.y, this.z)).is(VPBlocks.OCEANOGRAPHER_TABLE_BLOCK.get())) {
             this.remove();
         }
 
     }
 
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+    @Override
+    public SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.OPAQUE;
     }
 
     public static class Factory implements ParticleProvider<SimpleParticleType> {
@@ -43,10 +46,8 @@ public class BubbleParticle extends TextureSheetParticle {
             this.spriteProvider = spriteProvider;
         }
 
-        public Particle createParticle(SimpleParticleType defaultParticleType, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
-            BubbleParticle bubble = new BubbleParticle(clientWorld, d, e, f, g, h, i);
-            bubble.pickSprite(this.spriteProvider);
-            return bubble;
+        public Particle createParticle(SimpleParticleType defaultParticleType, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i, RandomSource random) {
+            return new BubbleParticle(clientWorld, d, e, f, g, h, i, this.spriteProvider.get(random));
         }
     }
 }

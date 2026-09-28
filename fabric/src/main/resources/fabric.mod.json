@@ -16,6 +16,7 @@
   "icon": "villagersplus_logo.png",
 
   "environment": "*",
+  "accessWidener": "villagersplus.accesswidener",
   "entrypoints": {
     "main": [
       "com.lion.villagersplus.fabric.VillagersPlusFabric"
@@ -30,10 +31,10 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.16.0",
+    "fabricloader": ">=0.19.5",
     "fabric-api": "*",
     "villagertradingplus": ">=1.0.0",
-    "minecraft": ">=1.21.8 <1.22",
-    "java": ">=21"
+    "minecraft": "~26.3",
+    "java": ">=25"
   }
 }
