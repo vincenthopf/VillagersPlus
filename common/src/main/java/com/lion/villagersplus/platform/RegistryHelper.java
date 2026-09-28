@@ -1,6 +1,5 @@
 package com.lion.villagersplus.platform;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
@@ -19,63 +18,51 @@ import java.util.function.Supplier;
 
 public class RegistryHelper {
 
-    @ExpectPlatform
     public static <T extends Block> Supplier<T> registerBlock(String name, Supplier<T> block) {
-        throw new AssertionError();
+        return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerBlock(name, block);
     }
 
-    @ExpectPlatform
     public static <T extends BlockEntityType<?>> Supplier<T> registerBlockEntity(String name, Supplier<T> blockEntity) {
-        throw new AssertionError();
+        return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerBlockEntity(name, blockEntity);
     }
 
-    @ExpectPlatform
     public static void registerItemGroup(RegistryKey<ItemGroup> registryKey, String name, String literalName, Supplier<Item> item) {
-        throw new AssertionError();
+        com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerItemGroup(registryKey, name, literalName, item);
     }
 
-    @ExpectPlatform
     public static <T extends Item> Supplier<T> registerItem(String name, Supplier<T> item) {
-        throw new AssertionError();
+        return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerItem(name, item);
     }
 
-    @ExpectPlatform
     public static void addToItemGroup(RegistryKey<ItemGroup> itemGroup, Item item) {
-        throw new AssertionError();
+        com.lion.villagersplus.platform.fabric.RegistryHelperImpl.addToItemGroup(itemGroup, item);
     }
 
-    @ExpectPlatform
     public static void registerParticleType(String name, SimpleParticleType particleType) {
-        throw new AssertionError();
+        com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerParticleType(name, particleType);
     }
 
-    @ExpectPlatform
     public static void registerRenderType(RenderLayer type, Block... blocks) {
-        throw new AssertionError();
+        com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerRenderType(type, blocks);
     }
 
-    @ExpectPlatform
     public static void registerScreenHandlerType(String name, ScreenHandlerType<?> screenHandlerType) {
-        throw new AssertionError();
+        com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerScreenHandlerType(name, screenHandlerType);
     }
 
-    @ExpectPlatform
     public static <T extends BlockEntity> void registerBlockEntityRenderer(Supplier<BlockEntityType<T>> type, BlockEntityRendererFactory<T> renderProvider) {
-        throw new AssertionError();
+        com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerBlockEntityRenderer(type, renderProvider);
     }
 
-    @ExpectPlatform
     public static <T extends PointOfInterestType> Supplier<T> registerPointOfInterestType(String name, Supplier<T> pointOfInterestType) {
-        throw new AssertionError();
+        return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerPointOfInterestType(name, pointOfInterestType);
     }
 
-    @ExpectPlatform
     public static <T extends VillagerProfession> Supplier<T> registerVillagerProfession(String name, Supplier<T> villagerProfession) {
-        throw new AssertionError();
+        return com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerVillagerProfession(name, villagerProfession);
     }
 
-    @ExpectPlatform
     public static void registerStructureProcessorType(String name, StructureProcessorType<?> structureProcessorType) {
-        throw new AssertionError();
+        com.lion.villagersplus.platform.fabric.RegistryHelperImpl.registerStructureProcessorType(name, structureProcessorType);
     }
 }
